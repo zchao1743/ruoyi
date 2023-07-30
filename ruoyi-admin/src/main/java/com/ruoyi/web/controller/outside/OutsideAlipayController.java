@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -127,9 +128,8 @@ public class OutsideAlipayController extends BaseController {
         logger.info("      sign:"+sign);
 
         OrgOrderInfo orderInfo = orderService.selectorderByOrderId(orderNo);
-//        String ipaddr = getIpAddr(request);
-//        orderInfo.setClientIp(ipaddr);
-//        orderService.updateOrgOrderInfo(orderInfo);
+        //异步调用，更新 ip地址
+        updateOrderInfoClientIp(orderInfo,request);
 
         if(BeanUtil.isNotEmpty(orderInfo)) {
             String  aftSign = Md5Utils.hash(orderInfo.getOrderNo()+orderInfo.getMerchantNo()).toUpperCase();
@@ -325,8 +325,16 @@ public class OutsideAlipayController extends BaseController {
         return db.setScale(2,BigDecimal.ROUND_DOWN);
     }
 
+    @Async
+    public void updateOrderInfoClientIp(OrgOrderInfo orderInfo,HttpServletRequest request){
+        orderInfo.setClientIp(getIpAddr(request));
+        int count  = orderService.updateOrgOrderInfo(orderInfo);
+        logger.info("更新支付订单ip地址："+count+" 条数据");
+    }
+
 
     public static String getIpAddr(HttpServletRequest request) {
+
         String ipAddress = request.getHeader("x-forwarded-for");
         if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("Proxy-Client-IP");
@@ -348,11 +356,13 @@ public class OutsideAlipayController extends BaseController {
             }
         }
         //对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
-        if (ipAddress != null && ipAddress.length() > 15) { //"***.***.***.***".length() = 15
+        if (ipAddress != null && ipAddress.length() > 8) { //"***.***.***.***".length() = 15
             if (ipAddress.indexOf(",") > 0) {
                 ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
             }
         }
+        logger.info("支付订单ip地址："+ipAddress+",");
         return ipAddress;
     }
+
 }

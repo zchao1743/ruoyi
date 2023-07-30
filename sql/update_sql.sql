@@ -1,0 +1,1 @@
+ALTER TABLE `org_order_info` ADD `clientIp` VARCHAR(20) NULL COMMENT '支付ip地址' AFTER `createTime`;

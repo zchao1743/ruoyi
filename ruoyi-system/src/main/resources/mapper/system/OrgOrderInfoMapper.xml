@@ -28,6 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="bodys"    column="bodys"    />
         <result property="response"    column="response"    />
         <result property="orderKey"    column="orderKey"    />
+        <result property="clientIp"    column="clientIp"    />
         <result property="orderStatus"    column="orderStatus"    />
         <result property="completionTime"    column="completionTime"    />
         <result property="returnTime"    column="returnTime"    />
@@ -35,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrgOrderInfoVo">
-        select id, accountId,accountAppId, accountName, channelId, channelName, merchantId,merchantNo, merchantName, orderNo, accountOrderNo,
+        select id, accountId,accountAppId, accountName, channelId, channelName, merchantId,merchantNo, merchantName, orderNo, accountOrderNo,clientIp,
                merchanOrderNo, yjamount,amount, method, payUrl, callbackUrl, callbackStatus, callbackTime, returnUrl, bodys, response, orderKey, orderStatus, completionTime, returnTime, createTime from org_order_info
     </sql>
 
@@ -64,6 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bodys != null  and bodys != ''"> and bodys = #{bodys}</if>
             <if test="response != null  and response != ''"> and response = #{response}</if>
             <if test="orderKey != null  and orderKey != ''"> and orderKey = #{orderKey}</if>
+            <if test="clientIp != null  and clientIp != ''"> and clientIp = #{clientIp}</if>
             <if test="orderStatus != null "> and orderStatus = #{orderStatus}</if>
             <if test="completionTime != null "> and completionTime = #{completionTime}</if>
             <if test="returnTime != null "> and returnTime = #{returnTime}</if>
@@ -128,6 +130,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bodys != null">bodys,</if>
             <if test="response != null">response,</if>
             <if test="orderKey != null">orderKey,</if>
+            <if test="clientIp != null">clientIp,</if>
             <if test="orderStatus != null">orderStatus,</if>
             <if test="completionTime != null">completionTime,</if>
             <if test="returnTime != null">returnTime,</if>
@@ -156,6 +159,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bodys != null">#{bodys},</if>
             <if test="response != null">#{response},</if>
             <if test="orderKey != null">#{orderKey},</if>
+            <if test="clientIp != null">#{clientIp},</if>
             <if test="orderStatus != null">#{orderStatus},</if>
             <if test="completionTime != null">#{completionTime},</if>
             <if test="returnTime != null">#{returnTime},</if>
@@ -188,6 +192,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bodys != null">bodys = #{bodys},</if>
             <if test="response != null">response = #{response},</if>
             <if test="orderKey != null">orderKey = #{orderKey},</if>
+            <if test="clientIp != null">clientIp = #{clientIp},</if>
             <if test="orderStatus != null">orderStatus = #{orderStatus},</if>
             <if test="completionTime != null">completionTime = #{completionTime},</if>
             <if test="returnTime != null">returnTime = #{returnTime},</if>

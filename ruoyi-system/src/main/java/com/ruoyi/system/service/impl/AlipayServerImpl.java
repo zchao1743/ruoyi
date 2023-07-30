@@ -145,30 +145,25 @@ public class AlipayServerImpl implements AlipayServer {
 
     @Override
     public String queryOrder(OrgOrderInfo orderInfo,SysAlipayConfig alipayCnf) throws AlipayApiException {
-//        String privateKey = alipayCnf.getRsaPrivateKey();
-//        String alipayPublicKey = alipayCnf.getAlipayPublicKey();
-//        AlipayConfig alipayConfig = new AlipayConfig();
-//        alipayConfig.setServerUrl(alipayCnf.getURL());
-//        alipayConfig.setAppId(alipayCnf.getAPPID());
-//        alipayConfig.setPrivateKey(privateKey);
-//        alipayConfig.setFormat("json");
-//        alipayConfig.setAlipayPublicKey(alipayPublicKey);
-//        alipayConfig.setCharset("UTF-8");
-//        alipayConfig.setSignType("RSA2");
-        AlipayClient alipayClient = null;
-        if(alipayCnf.getKeyOrCert() == 1){
-            logger.info("证书客户端！");
-            alipayClient =  certClient(alipayCnf);
-        }else{
-            logger.info("秘钥客户端！");
-            alipayClient =  alipayClient(alipayCnf);
-        }
         AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
         AlipayTradeQueryModel model = new AlipayTradeQueryModel();
         model.setOutTradeNo(orderInfo.getOrderNo());
         model.setTradeNo(orderInfo.getMerchanOrderNo());
         request.setBizModel(model);
-        AlipayTradeQueryResponse response = alipayClient.execute(request);
+        AlipayTradeQueryResponse response = null;
+        AlipayClient alipayClient = null;
+        if(alipayCnf.getKeyOrCert() == 1){
+            logger.info("证书客户端！");
+            alipayClient =  certClient(alipayCnf);
+            response = alipayClient.certificateExecute(request);
+            alipayClient = null;
+        }else{
+            logger.info("秘钥客户端！");
+            alipayClient =  alipayClient(alipayCnf);
+            response = alipayClient.execute(request);
+            alipayClient = null;
+        }
+
         logger.info("支付宝订单查询 ："+response.getBody());
         JSONObject jsonObject = JSONObject.parseObject(response.getBody());
         JSONObject query_response = JSONObject.parseObject(jsonObject.getString("alipay_trade_query_response"));
