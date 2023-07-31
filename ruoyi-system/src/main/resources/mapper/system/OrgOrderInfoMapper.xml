@@ -212,4 +212,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+
+    <select id="seleteByIp" parameterType="String" resultType="Integer">
+        select count(1) from org_order_info
+        where clientIp = #{ipadd} and date_format(createTime,'%Y-%m-%d') = date_format(CURDATE(),'%Y-%m-%d')
+    </select>
+
 </mapper>

@@ -129,6 +129,12 @@ public class OutsideAlipayController extends BaseController {
 
         OrgOrderInfo orderInfo = orderService.selectorderByOrderId(orderNo);
         //异步调用，更新 ip地址
+        String ipadd = getIpAddr(request);
+        int count = orderService.seleteByIp(ipadd);
+        if(count>2){
+            logger.error("ip地址："+ipadd+"大于2");
+            return "支付次数超限，请更换支付通道！";
+        }
         updateOrderInfoClientIp(orderInfo,request);
 
         if(BeanUtil.isNotEmpty(orderInfo)) {

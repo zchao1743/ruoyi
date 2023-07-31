@@ -51,6 +51,9 @@ public interface IOrgOrderInfoService
      */
     public int deleteOrgOrderInfoByIds(String ids);
 
+
+
+    public int seleteByIp(String ipadd);
     /**
      * 删除订单信息
      *

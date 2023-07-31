@@ -65,4 +65,6 @@ public interface OrgOrderInfoMapper
     public OrgOrderInfo queryOrder(OrgOrderInfo orgOrderInfo);
 
     OrgOrderInfo selectorderByOrderId(String orderNo);
+
+    public int seleteByIp(String ipadd);
 }

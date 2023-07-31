@@ -223,4 +223,9 @@ public class OrgOrderInfoServiceImpl implements IOrgOrderInfoService
             log.info(e.getMessage());
         }
     }
+
+    @Override
+    public int seleteByIp(String ipadd) {
+        return orgOrderInfoMapper.seleteByIp(ipadd);
+    }
 }
