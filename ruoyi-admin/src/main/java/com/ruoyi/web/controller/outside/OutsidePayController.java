@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 @Controller
@@ -137,9 +139,11 @@ public class OutsidePayController extends BaseController {
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setAmount(orderVo.getAmount());
         orderInfo.setYjamount(orderVo.getYjamount());
-        long id = IdWorkerUtil.getId();
-        String orderNo = "D"+ id;
-        orderInfo.setOrderNo(orderNo);  //订单号
+        String id = IdWorkerUtil.getId()+"";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String orderNo = sdf.format(new Date())+id.substring(id.length()-10,id.length());
+        orderInfo.setOrderNo(orderNo);
+        orderInfo.setSubject("订单号-"+orderNo);//sdf1
         orderInfo.setAcountAppId(orderVo.getAppid());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setCashier(orderVo.getCashier());

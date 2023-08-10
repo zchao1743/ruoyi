@@ -109,12 +109,11 @@ public class OutsideAlipayController extends BaseController {
         BigDecimal bd = orderVo.getAmount().subtract(getRandomRedPacketBetweenMinAndMax());
         orderInfo.setAmount(orderVo.getAmount());
         orderInfo.setYjamount(bd);
-        long id = IdWorkerUtil.getId();
+        String id = IdWorkerUtil.getId()+"";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
-        String orderNo = sdf.format(new Date())+"5"+id;
+        String orderNo = sdf.format(new Date())+id.substring(id.length()-10,id.length());
         orderInfo.setOrderNo(orderNo);
-        orderInfo.setSubject("订单号-"+sdf1.format(new Date()));//sdf1
+        orderInfo.setSubject("订单号-"+orderNo);//sdf1
         orderInfo.setAcountAppId(orderVo.getAppid());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setCashier(orderVo.getCashier());
@@ -376,13 +375,12 @@ public class OutsideAlipayController extends BaseController {
         return ipAddress;
     }
 
-//    public static void main(String[] args) {
-//        long id = IdWorkerUtil.getId();
-//        String str = "2023080522001433511442986450";
-//        String sts = "订单号-202308055090316493";
-//        String st3 = "订单号-202308101450140112";
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
-//        System.out.println(sdf.format(new Date()));
-//        System.out.println(sdf.format(new Date())+System.currentTimeMillis());
-//    }
+    public static void main(String[] args) {
+        String id = IdWorkerUtil.getId()+"";
+        String str = "202308055090379867";
+        String sts = "202308109797005312";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        System.out.println(id);
+        System.out.println(sdf.format(new Date())+id.substring(id.length()-10,id.length()));
+    }
 }
