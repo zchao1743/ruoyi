@@ -110,11 +110,11 @@ public class OutsideAlipayController extends BaseController {
         orderInfo.setAmount(orderVo.getAmount());
         orderInfo.setYjamount(bd);
         long id = IdWorkerUtil.getId();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
-        String orderNo = sdf.format(new Date())+"5"+id;
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+//        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
+        String orderNo = "D"+id;
         orderInfo.setOrderNo(orderNo);
-        orderInfo.setSubject("订单号-"+sdf1.format(new Date()));//sdf1
+        orderInfo.setSubject("用户充值");//sdf1
         orderInfo.setAcountAppId(orderVo.getAppid());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setCashier(orderVo.getCashier());
@@ -135,11 +135,11 @@ public class OutsideAlipayController extends BaseController {
         //异步调用，更新 ip地址
         String ipadd = getIpAddr(request);
         updateOrderInfoClientIp(orderInfo,ipadd);
-//        int count = orderService.seleteByIp(ipadd);
-//        if(count>2){
-//            logger.error("ip地址："+ipadd+"大于2");
-//            return "支付次数超限，请更换支付通道！";
-//        }
+        int count = orderService.seleteByIp(ipadd);
+        if(count>2){
+            logger.error("ip地址："+ipadd+"大于2");
+            return "支付次数超限，请更换支付通道！";
+        }
 
 
         if(BeanUtil.isNotEmpty(orderInfo)) {
