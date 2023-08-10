@@ -67,7 +67,7 @@ public class AlipayServerImpl implements AlipayServer {
         // 商户订单号，商户网站订单系统中唯一订单号，必填
         String out_trade_no = new String(orderInfo.getOrderNo());
         // 订单名称，必填
-        String subject = new String("用户充值！");
+        String subject = new String(orderInfo.getSubject());
         System.out.println(subject);
         // 付款金额，必填
         String total_amount=new String(orderInfo.getYjamount()+"");

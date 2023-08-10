@@ -43,6 +43,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -109,8 +110,11 @@ public class OutsideAlipayController extends BaseController {
         orderInfo.setAmount(orderVo.getAmount());
         orderInfo.setYjamount(bd);
         long id = IdWorkerUtil.getId();
-        String orderNo = "D"+ id;
-        orderInfo.setOrderNo(orderNo);  //订单号
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
+        String orderNo = sdf.format(new Date())+"5"+id;
+        orderInfo.setOrderNo(orderNo);
+        orderInfo.setSubject("订单号-"+sdf1.format(new Date()));//sdf1
         orderInfo.setAcountAppId(orderVo.getAppid());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setCashier(orderVo.getCashier());
@@ -131,11 +135,11 @@ public class OutsideAlipayController extends BaseController {
         //异步调用，更新 ip地址
         String ipadd = getIpAddr(request);
         updateOrderInfoClientIp(orderInfo,ipadd);
-        int count = orderService.seleteByIp(ipadd);
-        if(count>2){
-            logger.error("ip地址："+ipadd+"大于2");
-            return "支付次数超限，请更换支付通道！";
-        }
+//        int count = orderService.seleteByIp(ipadd);
+//        if(count>2){
+//            logger.error("ip地址："+ipadd+"大于2");
+//            return "支付次数超限，请更换支付通道！";
+//        }
 
 
         if(BeanUtil.isNotEmpty(orderInfo)) {
@@ -372,4 +376,13 @@ public class OutsideAlipayController extends BaseController {
         return ipAddress;
     }
 
+//    public static void main(String[] args) {
+//        long id = IdWorkerUtil.getId();
+//        String str = "2023080522001433511442986450";
+//        String sts = "订单号-202308055090316493";
+//        String st3 = "订单号-202308101450140112";
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
+//        System.out.println(sdf.format(new Date()));
+//        System.out.println(sdf.format(new Date())+System.currentTimeMillis());
+//    }
 }
