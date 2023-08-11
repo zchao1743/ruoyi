@@ -93,16 +93,26 @@ public class OutsideAlipayController extends BaseController {
 
         String afterSign = orderVo.getAppid()+orderVo.getMerchantOrderNo()+orderVo.getCallbackUrl()+
                 orderVo.getAmount()+orderVo.getTimestamps()+account.getAccountToken();
+
         logger.info("afterSign:"+afterSign);
         String sign = Md5Utils.hash(afterSign).toUpperCase();
         logger.info("sign:"+sign);
+
         if(!sign.equals(orderVo.getSign())){
             return new AjaxResult(AjaxResult.Type.ERROR,"验签失败！","");
         }
+
+        if(StringUtils.isNotEmpty(orderVo.getUid())){
+            int count = orderService.seleteByUid(orderVo.getAppid(),orderVo.getUid());
+            if( count > 2 ){
+                return new AjaxResult(AjaxResult.Type.ERROR,"拉取订单失败，请更换支付通道！","");
+            }
+        }
+
         OrgOrderInfo orderInfo = new OrgOrderInfo();
         orderInfo.setAccountName(account.getAccountName());
         orderInfo.setAccountId(account.getId());
-
+        orderInfo.setUid(orderVo.getUid());
         orderInfo.setAccountOrderNo(orderVo.getMerchantOrderNo());
         orderInfo.setCallbackUrl(orderVo.getCallbackUrl());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());

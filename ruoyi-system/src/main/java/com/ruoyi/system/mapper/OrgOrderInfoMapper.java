@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.OrgOrderInfo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 订单Mapper接口
@@ -67,4 +68,6 @@ public interface OrgOrderInfoMapper
     OrgOrderInfo selectorderByOrderId(String orderNo);
 
     public int seleteByIp(String ipadd);
+
+    public int seleteByUid(@Param("accountAppId")String accountAppId, @Param("uid")String uid);
 }

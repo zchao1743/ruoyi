@@ -228,4 +228,9 @@ public class OrgOrderInfoServiceImpl implements IOrgOrderInfoService
     public int seleteByIp(String ipadd) {
         return orgOrderInfoMapper.seleteByIp(ipadd);
     }
+
+    @Override
+    public int seleteByUid(String accountAppId,String uid) {
+        return orgOrderInfoMapper.seleteByUid(accountAppId,uid);
+    }
 }

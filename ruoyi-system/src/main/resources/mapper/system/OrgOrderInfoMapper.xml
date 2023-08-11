@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.ruoyi.system.domain.OrgOrderInfo" id="OrgOrderInfoResult">
         <result property="id"    column="id"    />
+        <result property="uid"    column="uid"    />
         <result property="accountAppId"    column="accountAppId"    />
         <result property="accountId"    column="accountId"    />
         <result property="accountName"    column="accountName"    />
@@ -36,13 +37,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrgOrderInfoVo">
-        select id, accountId,accountAppId, accountName, channelId, channelName, merchantId,merchantNo, merchantName, orderNo, accountOrderNo,clientIp,
+        select id, uid,accountId,accountAppId, accountName, channelId, channelName, merchantId,merchantNo, merchantName, orderNo, accountOrderNo,clientIp,
                merchanOrderNo, yjamount,amount, method, payUrl, callbackUrl, callbackStatus, callbackTime, returnUrl, bodys, response, orderKey, orderStatus, completionTime, returnTime, createTime from org_order_info
     </sql>
 
     <select id="selectOrgOrderInfoList" parameterType="com.ruoyi.system.domain.OrgOrderInfo" resultMap="OrgOrderInfoResult">
         <include refid="selectOrgOrderInfoVo"/>
         <where>
+            <if test="uid != null  and uid != ''"> and uid = #{uid}</if>
             <if test="accountAppId != null  and accountAppId != ''"> and accountAppId = #{accountAppId}</if>
             <if test="accountId != null  and accountId != ''"> and accountId = #{accountId}</if>
             <if test="accountName != null  and accountName != ''"> and accountName like concat('%', #{accountName}, '%')</if>
@@ -86,6 +88,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryOrder" resultType="com.ruoyi.system.domain.OrgOrderInfo">
         <include refid="selectOrgOrderInfoVo"/>
         <where>
+            <if test="uid != null  and uid != ''"> and uid = #{uid}</if>
             <if test="accountId != null  and accountId != ''"> and accountId = #{accountId}</if>
             <if test="accountAppId != null  and accountAppId != ''"> and accountAppId = #{accountAppId}</if>
             <if test="accountName != null  and accountName != ''"> and accountName like concat('%', #{accountName}, '%')</if>
@@ -109,6 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into org_order_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="accountId != null">accountId,</if>
+            <if test="uid != null">uid,</if>
             <if test="accountAppId != null">accountAppId,</if>
             <if test="accountName != null">accountName,</if>
             <if test="channelId != null">channelId,</if>
@@ -137,6 +141,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">createTime,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uid != null">#{uid},</if>
             <if test="accountId != null">#{accountId},</if>
             <if test="accountAppId != null">#{accountAppId},</if>
             <if test="accountName != null">#{accountName},</if>
@@ -170,6 +175,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateOrgOrderInfo" parameterType="com.ruoyi.system.domain.OrgOrderInfo">
         update org_order_info
         <trim prefix="SET" suffixOverrides=",">
+            <if test="uid != null">uid = #{uid},</if>
             <if test="accountId != null">accountId = #{accountId},</if>
             <if test="accountAppId != null">accountAppId = #{accountAppId},</if>
             <if test="accountName != null">accountName = #{accountName},</if>
@@ -218,4 +224,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where clientIp = #{ipadd} and date_format(createTime,'%Y-%m-%d') = date_format(CURDATE(),'%Y-%m-%d')
     </select>
 
+    <select id="seleteByUid" parameterType="String" resultType="Integer">
+        select count(1) from org_order_info
+        where accountAppId = #{accountAppId}
+          and uid = #{uid}
+          and callbackStatus = 1
+          and date_format(createTime,'%Y-%m-%d') = date_format(CURDATE(),'%Y-%m-%d')
+    </select>
 </mapper>

@@ -21,6 +21,8 @@ public class OutsideOrderVO extends BaseEntity {
     private String sign;
     private String method;
     private String orderNo;
+
+    private String uid;
     private String regionName; //大区名称
     private Long cashier;//是否要收银台   1显示    或  0 不显示
 
@@ -119,6 +121,14 @@ public class OutsideOrderVO extends BaseEntity {
 
     public void setYjamount(BigDecimal yjamount) {
         this.yjamount = yjamount;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     @Override
