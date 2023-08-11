@@ -85,13 +85,15 @@ public class OutsidePayController extends BaseController {
             logger.info("验签失败！");
            // return "";
         }
-        long id = IdWorkerUtil.getId();
         BigDecimal bd = orderVo.getAmount().subtract(getRandomRedPacketBetweenMinAndMax());
 //        String afterSign1 = orderVo.getAppid()+orderVo.getMerchantOrderNo()+orderVo.getCallbackUrl()+
 //                bd+orderVo.getTimestamps()+account.getAccountToken();
 //        String sign1 = Md5Utils.hash(afterSign1).toUpperCase();
-        String orderNo = "D"+ id;
+        String id = IdWorkerUtil.getId()+"";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String orderNo = sdf.format(new Date())+id.substring(id.length()-10,id.length());
         mmap.put("orderNo",orderNo);//订单号
+        mmap.put("subject","订单号-"+orderNo);//订单号
         mmap.put("regionName",account.getAccountName());//充值大区
         mmap.put("remark","元宝");//内容
         mmap.put("appid",orderVo.getAppid());//

@@ -21,6 +21,8 @@ public class OutsideOrderVO extends BaseEntity {
     private String sign;
     private String method;
     private String orderNo;
+
+    private String subject;
     private String regionName; //大区名称
     private Long cashier;//是否要收银台   1显示    或  0 不显示
 
@@ -121,10 +123,19 @@ public class OutsideOrderVO extends BaseEntity {
         this.yjamount = yjamount;
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
     @Override
     public String toString() {
         return "OutsideOrderVO{" +
                 "appid='" + appid + '\'' +
+                ", subject='" + subject + '\'' +
                 ", timestamps='" + timestamps + '\'' +
                 ", merchantOrderNo='" + merchantOrderNo + '\'' +
                 ", callbackUrl='" + callbackUrl + '\'' +
