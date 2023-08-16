@@ -95,10 +95,11 @@ public class OutsidePayController extends BaseController {
         mmap.put("orderNo",orderNo);//订单号
         mmap.put("subject","订单号-"+orderNo);//订单号
         mmap.put("regionName",account.getAccountName());//充值大区
-        mmap.put("remark","元宝");//内容
+        mmap.put("remark","");//内容
         mmap.put("appid",orderVo.getAppid());//
         mmap.put("merchantOrderNo",orderVo.getMerchantOrderNo());//角色名称
         mmap.put("callbackUrl",orderVo.getCallbackUrl());//
+        mmap.put("returnUrl",orderVo.getReturnUrl());//
         mmap.put("amount",orderVo.getAmount());//金额
         mmap.put("yjamount",bd);//随机金额
         mmap.put("method",orderVo.getMethod());//支付方式

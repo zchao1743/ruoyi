@@ -1,1 +1,1 @@
-ALTER TABLE `org_order_info` ADD `clientIp` VARCHAR(20) NULL COMMENT '支付ip地址' AFTER `createTime`;
+ALTER TABLE `org_order_info` ADD `clientIp` VARCHAR(50) NULL COMMENT '客户端IP' AFTER `createTime`, ADD `uid` VARCHAR(100) NULL COMMENT '用户ID' AFTER `clientIp`;
