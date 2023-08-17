@@ -116,7 +116,7 @@ public class OutsideAlipayController extends BaseController {
         orderInfo.setSubject("订单号-"+orderNo);//sdf1
         orderInfo.setAcountAppId(orderVo.getAppid());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
-        orderInfo.setCashier(orderVo.getCashier());
+        orderInfo.setCashier(account.getCashier());
         return alipayServer.aliPayment(orderInfo);
 
     }

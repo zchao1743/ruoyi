@@ -16,10 +16,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="totleTodayYjAmount"    column="totleTodayYjAmount"    />
         <result property="totleAmount"    column="totleAmount"    />
         <result property="totleYjAmount"    column="totleYjAmount"    />
+        <result property="cashier"    column="cashier"    />
+
     </resultMap>
 
     <sql id="selectOrgAccountVo">
-        select id, accountName, accountPwd, accountAppId, accountStatus, accountToken, createdTime from org_account
+        select id, cashier,accountName, accountPwd, accountAppId, accountStatus, accountToken, createdTime from org_account
     </sql>
 
     <select id="selectOrgAccountList" parameterType="com.ruoyi.system.domain.OrgAccount" resultMap="OrgAccountResult">
@@ -88,6 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="accountStatus != null">accountStatus,</if>
             <if test="accountToken != null">accountToken,</if>
             <if test="createdTime != null">createdTime,</if>
+            <if test="cashier != null">cashier,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="accountName != null">#{accountName},</if>
@@ -96,6 +99,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="accountStatus != null">#{accountStatus},</if>
             <if test="accountToken != null">#{accountToken},</if>
             <if test="createdTime != null">#{createdTime},</if>
+            <if test="cashier != null">#{cashier},</if>
          </trim>
     </insert>
 
@@ -108,6 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="accountStatus != null">accountStatus = #{accountStatus},</if>
             <if test="accountToken != null">accountToken = #{accountToken},</if>
             <if test="createdTime != null">createdTime = #{createdTime},</if>
+            <if test="cashier != null">cashier = #{cashier},</if>
         </trim>
         where id = #{id}
     </update>
