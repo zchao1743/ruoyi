@@ -23,7 +23,6 @@ public class OutsideOrderVO extends BaseEntity {
     private String orderNo;
 
     private String uid;
-
     private String subject;
     private String regionName; //大区名称
     private Long cashier;//是否要收银台   1显示    或  0 不显示
@@ -125,20 +124,19 @@ public class OutsideOrderVO extends BaseEntity {
         this.yjamount = yjamount;
     }
 
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
     public String getUid() {
         return uid;
     }
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     @Override

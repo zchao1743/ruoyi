@@ -93,12 +93,22 @@ public class OutsideAlipayController extends BaseController {
 
         String afterSign = orderVo.getAppid()+orderVo.getMerchantOrderNo()+orderVo.getCallbackUrl()+
                 orderVo.getAmount()+orderVo.getTimestamps()+account.getAccountToken();
+
         logger.info("afterSign:"+afterSign);
         String sign = Md5Utils.hash(afterSign).toUpperCase();
         logger.info("sign:"+sign);
+
         if(!sign.equals(orderVo.getSign())){
             return new AjaxResult(AjaxResult.Type.ERROR,"验签失败！","");
         }
+
+        if(StringUtils.isNotEmpty(orderVo.getUid())){
+            int count = orderService.seleteByUid(orderVo.getAppid(),orderVo.getUid());
+            if( count > 2 ){
+                return new AjaxResult(AjaxResult.Type.ERROR,"拉取订单失败，请更换支付通道！","");
+            }
+        }
+
         OrgOrderInfo orderInfo = new OrgOrderInfo();
         orderInfo.setAccountName(account.getAccountName());
         orderInfo.setAccountId(account.getId());
@@ -376,13 +386,12 @@ public class OutsideAlipayController extends BaseController {
         return ipAddress;
     }
 
-//    public static void main(String[] args) {
-//        long id = IdWorkerUtil.getId();
-//        String str = "2023080522001433511442986450";
-//        String sts = "订单号-202308055090316493";
-//        String st3 = "订单号-202308101450140112";
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
-//        System.out.println(sdf.format(new Date()));
-//        System.out.println(sdf.format(new Date())+System.currentTimeMillis());
-//    }
+    public static void main(String[] args) {
+        String id = IdWorkerUtil.getId()+"";
+        String str = "202308055090379867";
+        String sts = "202308109797005312";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        System.out.println(id);
+        System.out.println(sdf.format(new Date())+id.substring(id.length()-10,id.length()));
+    }
 }
