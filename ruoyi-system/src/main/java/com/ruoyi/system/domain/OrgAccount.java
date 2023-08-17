@@ -33,6 +33,8 @@ public class OrgAccount extends BaseEntity
     @Excel(name = "APPID")
     private String accountAppId;
 
+    private Long cashier;//是否要收银台   1显示    或  0 不显示
+
     /** 客户状态 */
     @Excel(name = "客户状态")
     private Long accountStatus;
@@ -51,6 +53,13 @@ public class OrgAccount extends BaseEntity
     private BigDecimal totleAmount;
     private BigDecimal totleYjAmount;
 
+    public Long getCashier() {
+        return cashier;
+    }
+
+    public void setCashier(Long cashier) {
+        this.cashier = cashier;
+    }
 
     public void setId(Long id)
     {

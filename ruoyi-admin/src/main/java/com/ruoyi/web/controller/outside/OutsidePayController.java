@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 @Controller
@@ -83,18 +85,21 @@ public class OutsidePayController extends BaseController {
             logger.info("验签失败！");
            // return "";
         }
-        long id = IdWorkerUtil.getId();
         BigDecimal bd = orderVo.getAmount().subtract(getRandomRedPacketBetweenMinAndMax());
 //        String afterSign1 = orderVo.getAppid()+orderVo.getMerchantOrderNo()+orderVo.getCallbackUrl()+
 //                bd+orderVo.getTimestamps()+account.getAccountToken();
 //        String sign1 = Md5Utils.hash(afterSign1).toUpperCase();
-        String orderNo = "D"+ id;
+        String id = IdWorkerUtil.getId()+"";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String orderNo = sdf.format(new Date())+id.substring(id.length()-10,id.length());
         mmap.put("orderNo",orderNo);//订单号
+        mmap.put("subject","订单号-"+orderNo);//订单号
         mmap.put("regionName",account.getAccountName());//充值大区
-        mmap.put("remark","元宝");//内容
+        mmap.put("remark","");//内容
         mmap.put("appid",orderVo.getAppid());//
         mmap.put("merchantOrderNo",orderVo.getMerchantOrderNo());//角色名称
         mmap.put("callbackUrl",orderVo.getCallbackUrl());//
+        mmap.put("returnUrl",orderVo.getReturnUrl());//
         mmap.put("amount",orderVo.getAmount());//金额
         mmap.put("yjamount",bd);//随机金额
         mmap.put("method",orderVo.getMethod());//支付方式
@@ -137,9 +142,11 @@ public class OutsidePayController extends BaseController {
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setAmount(orderVo.getAmount());
         orderInfo.setYjamount(orderVo.getYjamount());
-        long id = IdWorkerUtil.getId();
-        String orderNo = "D"+ id;
-        orderInfo.setOrderNo(orderNo);  //订单号
+        String id = IdWorkerUtil.getId()+"";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String orderNo = sdf.format(new Date())+id.substring(id.length()-10,id.length());
+        orderInfo.setOrderNo(orderNo);
+        orderInfo.setSubject("订单号-"+orderNo);//sdf1
         orderInfo.setAcountAppId(orderVo.getAppid());
         orderInfo.setReturnUrl(orderVo.getReturnUrl());
         orderInfo.setCashier(orderVo.getCashier());

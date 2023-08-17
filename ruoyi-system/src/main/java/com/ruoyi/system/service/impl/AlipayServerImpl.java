@@ -72,7 +72,7 @@ public class AlipayServerImpl implements AlipayServer {
         // 付款金额，必填
         String total_amount=new String(orderInfo.getYjamount()+"");
         // 商品描述，可空
-        String body = new String("用户充值！");
+        String body = new String(orderInfo.getSubject());
         // 超时时间 可空
         String timeout_express="2m";
         // 销售产品码 必填
@@ -129,7 +129,7 @@ public class AlipayServerImpl implements AlipayServer {
         String orderMerMd5 = Md5Utils.hash(orderInfo.getOrderNo()+orderInfo.getMerchantNo()).toUpperCase();
         String payurl ="";
         if(ObjectUtil.isNotEmpty(orderInfo.getCashier())&&orderInfo.getCashier()==1){
-            payurl = alipay+"rechargeOrder/"+ orderInfo.getOrderNo()+"/"+orderMerMd5;
+            payurl = alipay+"rechargeOrder/"+ orderInfo.getOrderNo()+"/"+orderMerMd5;  //收银台
         }else{
             payurl = alipay+"payOrderInfo/"+ orderInfo.getOrderNo()+"/"+orderMerMd5;
         }
@@ -299,12 +299,12 @@ public class AlipayServerImpl implements AlipayServer {
         // 商户订单号，商户网站订单系统中唯一订单号，必填
         String out_trade_no = new String(orderInfo.getOrderNo());
         // 订单名称，必填
-        String subject = new String("用户充值！");
+        String subject = new String(orderInfo.getSubject());
         System.out.println(subject);
         // 付款金额，必填
         String total_amount=new String(orderInfo.getYjamount()+"");
         // 商品描述，可空
-        String body = new String("用户充值！");
+        String body = new String(orderInfo.getSubject());
         // 超时时间 可空
         String timeout_express="2m";
         // 销售产品码 必填
