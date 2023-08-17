@@ -254,7 +254,7 @@ public class OutsideAlipayController extends BaseController {
         }
         mmap.put("orderNo", orderNo);
         mmap.put("amount", ooi.getAmount());
-        mmap.put("yjAmount", ooi.getMyAmount());
+        mmap.put("yjAmount", ooi.getYjamount());
         mmap.put("toSign", toSign);
         return prefix + "/payOrder";
     }
