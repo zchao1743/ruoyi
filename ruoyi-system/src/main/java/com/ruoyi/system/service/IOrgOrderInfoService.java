@@ -54,6 +54,9 @@ public interface IOrgOrderInfoService
 
 
     public int seleteByIp(String ipadd);
+
+
+    public int seleteByUid(String accountAppId,String uid);
     /**
      * 删除订单信息
      *

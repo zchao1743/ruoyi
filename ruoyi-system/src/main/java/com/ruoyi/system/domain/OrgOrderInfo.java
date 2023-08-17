@@ -27,6 +27,8 @@ public class OrgOrderInfo extends BaseEntity
 
     private String clientIp; //客户IP地址
 
+    private String uid; //客户用户ID
+
     private String subject; //商品主题
 
     private String accountAppId;
@@ -397,6 +399,14 @@ public class OrgOrderInfo extends BaseEntity
 
     public void setYjamount(BigDecimal yjamount) {
         this.yjamount = yjamount;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     @Override
