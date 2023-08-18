@@ -20,9 +20,11 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.security.Md5Utils;
 import com.ruoyi.system.domain.OrgOrderInfo;
+import com.ruoyi.system.domain.OrgTradeComplain;
 import com.ruoyi.system.domain.SysAlipayConfig;
 import com.ruoyi.system.service.AlipayServer;
 import com.ruoyi.system.service.IOrgOrderInfoService;
+import com.ruoyi.system.service.IOrgTradeComplainService;
 import com.ruoyi.system.service.ISysAlipayConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,9 @@ public class AlipayServerImpl implements AlipayServer {
     private IOrgOrderInfoService orderInfoService;
     @Autowired
     private IOrgOrderInfoService orgOrderInfoService;
+
+    @Autowired
+    private IOrgTradeComplainService tradeComplainService;
 
     @Override
     public AjaxResult aliPayment(OrgOrderInfo orderInfo) {
@@ -406,5 +411,63 @@ public class AlipayServerImpl implements AlipayServer {
         AlipayClient alipayClient = new DefaultAlipayClient(alipayConfig.getURL(), alipayConfig.getAPPID(),
                 alipayConfig.getAlipayPrivateKey(), "json", "UTF-8", alipayConfig.getAlipayPublicKey(), "RSA2");
         return alipayClient;
+    }
+
+
+    /**
+     * 交易投诉通知回调
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws AlipayApiException
+     */
+    public String aliPayTradecomplainChanged(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException {
+        Map<String,String> params = new HashMap<String,String>();
+        Map requestParams = request.getParameterMap();
+        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
+            String name = (String) iter.next();
+            String[] values = (String[]) requestParams.get(name);
+            String valueStr = "";
+            for (int i = 0; i < values.length; i++) {
+                valueStr = (i == values.length - 1) ? valueStr + values[i]
+                        : valueStr + values[i] + ",";
+            }
+            //乱码解决，这段代码在出现乱码时使用。如果mysign和sign不相等也可以使用这段代码转化
+            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "gbk");
+            params.put(name, valueStr);
+        }
+
+        String appid = new String(request.getParameter("app_id").getBytes("ISO-8859-1"),"UTF-8");
+        //支付宝侧投诉单号
+        String complainEventId = new String(request.getParameter("complain_event_id").getBytes("ISO-8859-1"),"UTF-8");
+
+        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfig(appid);
+        boolean verify_result= false;
+        if(alipayConfig.getKeyOrCert()==1){
+            verify_result = AlipaySignature.certVerifyV1(params,uploadUrl+"/upload/"+alipayConfig.getAlipayCertPath(),"UTF-8", "RSA2");
+        }else{
+            verify_result = AlipaySignature.rsaCheckV1(params, alipayConfig.getAlipayPublicKey(), "UTF-8", "RSA2");
+        }
+        if(verify_result){//验证成功
+            //////////////////////////////////////////////////////////////////////////////////////////
+            //请在这里加上商户的业务逻辑程序代码
+            OrgTradeComplain orgTradeComplain = new OrgTradeComplain();
+            orgTradeComplain.setComplainEventId(complainEventId);
+            orgTradeComplain.setStatus("MERCHANT_PROCESSING");//待处理
+            orgTradeComplain.setGmtCreate(new Date());
+            tradeComplainService.insertOrgTradeComplain(orgTradeComplain);
+            //——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
+
+            //——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
+            return "success";
+
+            //////////////////////////////////////////////////////////////////////////////////////////
+        }else{//验证失败
+            return "fail";
+        }
+    }
+
+    public int synctradecomplain(){
+        return  1;
     }
 }

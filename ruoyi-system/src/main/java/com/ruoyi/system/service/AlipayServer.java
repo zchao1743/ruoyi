@@ -20,4 +20,11 @@ public interface AlipayServer {
     String refund(OrgOrderInfo orderInfo);
     String refundQuery(OrgOrderInfo orderInfo);
 
+    /**
+     * 定时同步查询交易投诉列表
+     */
+    int synctradecomplain();
+
+    String aliPayTradecomplainChanged(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException;
+
 }
