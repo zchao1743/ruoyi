@@ -16,10 +16,7 @@ import com.ruoyi.common.utils.security.RSAUtil;
 import com.ruoyi.common.utils.security.SignStrUtil;
 import com.ruoyi.common.utils.uuid.IdWorkerUtil;
 import com.ruoyi.framework.web.domain.server.Sys;
-import com.ruoyi.system.domain.OrgAccount;
-import com.ruoyi.system.domain.OrgChannelMerchant;
-import com.ruoyi.system.domain.OrgOrderInfo;
-import com.ruoyi.system.domain.SysAlipayConfig;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
 import com.ruoyi.web.controller.outside.domain.HuiYanDaCallBackModel;
 import com.ruoyi.web.controller.outside.domain.OutsideOrderVO;
@@ -376,6 +373,16 @@ public class OutsideAlipayController extends BaseController {
         logger.info("更新支付订单ip地址："+count+" 条数据");
     }
 
+    @Async
+    public void inseterOrderInfoClientIp(String uid,String ipadd){
+        AlipayUserInfo alipayUserInfo = new AlipayUserInfo();
+        alipayUserInfo.setUid(uid);
+        alipayUserInfo.setIpadd(ipadd);
+        alipayUserInfo.setGmtCreate(new Date());
+        int count  = alipayUserInfoService.insertAlipayUserInfo(alipayUserInfo);
+        logger.info("更新支付订单用户UID和IP地址："+count+" 条数据");
+    }
+
 
     public static String getIpAddr(HttpServletRequest request) {
 
@@ -457,13 +464,13 @@ public class OutsideAlipayController extends BaseController {
             return "调用失败";
         }
         //异步调用，更新 ip地址
-        updateOrderInfoClientIp(orderInfo,ipadd);
+        //updateOrderInfoClientIp(orderInfo,ipadd);
+        inseterOrderInfoClientIp(uid,ipadd);
 //        int count = orderService.seleteByIp(ipadd);
 //        if(count>2){
 //            logger.error("ip地址："+ipadd+"大于2");
 //            return "支付次数超限，请更换支付通道！";
 //        }
-
 
         if(BeanUtil.isNotEmpty(orderInfo)) {
             String  aftSign = Md5Utils.hash(orderInfo.getOrderNo()+orderInfo.getMerchantNo()).toUpperCase();

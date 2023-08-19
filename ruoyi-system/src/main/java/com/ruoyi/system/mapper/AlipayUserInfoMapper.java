@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.AlipayUserInfo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 支付宝用户信息Mapper接口
@@ -20,7 +21,7 @@ public interface AlipayUserInfoMapper
     public AlipayUserInfo selectAlipayUserInfoById(Long id);
 
 
-    public int selectAlipayUserInfoByUidOrIpadd(String uid,String ipAdd);
+    public int selectAlipayUserInfoByUidOrIpadd(@Param("uid")String uid, @Param("ipadd")String ipadd);
     /**
      * 查询支付宝用户信息列表
      * 
