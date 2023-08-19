@@ -58,7 +58,7 @@ public class RyTask
 
 
     public void synctradecomplain() throws Exception {
-        logger.info("订单回调定时任务开始");
+        logger.info("处理投诉定时任务开始");
         OrgTradeComplain orgTradeComplain = new OrgTradeComplain();
         orgTradeComplain.setStatus("MERCHANT_PROCESSING");
         List<OrgTradeComplain> orgTradeComplainList = tradeComplainService.selectOrgTradeComplainList(orgTradeComplain);
@@ -67,6 +67,14 @@ public class RyTask
                 alipayServer.synctradecomplain(tradeComplain);
             }
         }
-        logger.info("订单回调定时任务结束");
+        logger.info("处理投诉定时任务结束");
+    }
+
+
+
+    public void syncTradecomplainBatchquery() throws Exception {
+        logger.info("查询投诉列表开始");
+        alipayServer.alipayMerchantTradecomplainBatchquery();
+        logger.info("查询投诉列表结束");
     }
 }

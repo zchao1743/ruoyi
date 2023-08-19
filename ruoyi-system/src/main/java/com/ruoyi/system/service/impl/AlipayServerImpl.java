@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.*;
 import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
+import com.alipay.api.domain.TradeComplainQueryResponse;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;
@@ -35,10 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.text.DateFormat;
+import java.util.*;
 
 @Service
 public class AlipayServerImpl implements AlipayServer {
@@ -419,6 +418,7 @@ public class AlipayServerImpl implements AlipayServer {
      * @throws AlipayApiException
      */
     public String aliPayTradecomplainChanged(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
+        logger.info("交易投诉通知回调--------aliPayTradecomplainChanged--");
         Map<String,String> params = new HashMap<String,String>();
         Map requestParams = request.getParameterMap();
         for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
@@ -648,4 +648,62 @@ public class AlipayServerImpl implements AlipayServer {
 //            return infoShareResponse ;
 //        }
 //    }
+
+
+    @Override
+    public void alipayMerchantTradecomplainBatchquery() throws AlipayApiException {
+        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        AlipayClient alipayClient = null;
+        if(alipayConfig.getKeyOrCert() == 1){
+            logger.info("证书客户端！");
+            alipayClient =  certClient(alipayConfig);
+        }else{
+            logger.info("秘钥客户端！");
+            alipayClient =  alipayClient(alipayConfig);
+        }
+
+        //String begin_time = DateUtils.dateTimeNow("yyyy-MM-dd")+" 00:00:00";
+        String begin_time = "2023-08-12 00:00:00";
+        String end_time = DateUtils.dateTimeNow("yyyy-MM-dd")+" 23:59:59";
+        AlipayMerchantTradecomplainBatchqueryRequest request = new AlipayMerchantTradecomplainBatchqueryRequest();
+        request.setBizContent("{" +
+                "  \"target_infos\":[" +
+                "    {" +
+                "      \"target_id\":\""+alipayConfig.getAPPID()+"\"," +
+                "      \"target_type\":\"APPID\"" +
+                "    }" +
+                "  ]," +
+                //"  \"status\":\"MERCHANT_PROCESSING\"," +
+                //"  \"begin_time\":\""+begin_time+"\"," +
+                //"  \"end_time\":\""+end_time+"\"," +
+                "  \"page_size\":20," +
+                "  \"page_num\":1" +
+                "}");
+        AlipayMerchantTradecomplainBatchqueryResponse response = alipayClient.certificateExecute(request);
+        logger.info("AlipayMerchantTradecomplainBatchqueryResponse--getBody:"+response.getBody());
+        if(response.isSuccess()){
+            List<TradeComplainQueryResponse>  responseLisrt = response.getTradeComplainInfos();
+            if(responseLisrt != null){
+                for (TradeComplainQueryResponse res:responseLisrt ) {
+                    logger.info("ComplainEventId:"+res.getComplainEventId());
+                    logger.info("status:"+res.getStatus());
+                    OrgTradeComplain orgTradeComplain = new OrgTradeComplain();
+                    orgTradeComplain.setComplainEventId(res.getComplainEventId());
+                    orgTradeComplain.setComplainReason(res.getComplainReason());
+                    orgTradeComplain.setTargetId(res.getTargetId());    //应用id
+                    orgTradeComplain.setTradeNo(res.getTradeNo());      //支付宝交易号
+                    orgTradeComplain.setStatus(res.getStatus());
+                    orgTradeComplain.setMerchantOrderNo(res.getMerchantOrderNo());   //商家订单号
+                    orgTradeComplain.setGmtCreate(DateUtil.date());
+                    orgTradeComplain.setGmtModified(DateUtils.parseDate(res.getGmtModified()));
+                    orgTradeComplain.setGmtFinished(DateUtils.parseDate(res.getGmtFinished()));
+                    orgTradeComplain.setLeafCategoryName(res.getLeafCategoryName());
+                    tradeComplainService.insertOrgTradeComplain(orgTradeComplain);
+                }
+            }
+        }else {
+            logger.info("查询交易投诉列表__查询失败！");
+        }
+    }
+
 }

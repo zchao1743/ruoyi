@@ -23,7 +23,7 @@ public interface AlipayServer {
     String refundQuery(OrgOrderInfo orderInfo);
 
     /**
-     * 定时同步查询交易投诉列表
+     * 定时同步查询交易投诉
      */
     String synctradecomplain(OrgTradeComplain orgTradeComplain) throws Exception;
 
@@ -36,4 +36,8 @@ public interface AlipayServer {
     String alipayMerchantTradecomplainFeedbackSubmit(OrgTradeComplain orgTradeComplain,AlipayClient alipayClient) throws AlipayApiException;
 
     String loginCallBack(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException;
+
+
+    //查询投诉列表
+    void alipayMerchantTradecomplainBatchquery() throws AlipayApiException;
 }

@@ -76,6 +76,9 @@ public class OutsideAlipayController extends BaseController {
     @Value(value = "${alipay.authorizeUrl}")
     private String authorizeUrl;
 
+    @Value(value = "${alipay.getUidUrl}")
+    private String getUidUrl;
+
     @Value(value = "${alipay.appid}")
     private String appid;
     private static final Logger logger = LoggerFactory.getLogger(OutsideAlipayController.class);
@@ -149,14 +152,13 @@ public class OutsideAlipayController extends BaseController {
 
         OrgOrderInfo orderInfo = orderService.selectorderByOrderId(orderNo);
         //异步调用，更新 ip地址
-        String ipadd = getIpAddr(request);
-        updateOrderInfoClientIp(orderInfo,ipadd);
+//        String ipadd = getIpAddr(request);
+//        updateOrderInfoClientIp(orderInfo,ipadd);
 //        int count = orderService.seleteByIp(ipadd);
 //        if(count>2){
 //            logger.error("ip地址："+ipadd+"大于2");
 //            return "支付次数超限，请更换支付通道！";
 //        }
-
 
         if(BeanUtil.isNotEmpty(orderInfo)) {
             String  aftSign = Md5Utils.hash(orderInfo.getOrderNo()+orderInfo.getMerchantNo()).toUpperCase();
@@ -262,6 +264,7 @@ public class OutsideAlipayController extends BaseController {
         mmap.put("amount", ooi.getAmount());
         mmap.put("yjAmount", ooi.getMyAmount());
         mmap.put("toSign", toSign);
+        mmap.put("actionUrl", "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id="+appid+"&scope=auth_base&redirect_uri="+getUidUrl+"&state="+orderNo+"_"+toSign);
         return prefix + "/payOrder";
     }
 
@@ -431,7 +434,7 @@ public class OutsideAlipayController extends BaseController {
     public String aliPayTradecomplainChanged(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException {
         //支付宝支付回调
         String msgMethod = new String(request.getParameter("msg_method").getBytes("ISO-8859-1"),"UTF-8");
-        logger.info("支付宝支付回调 request ===> " + request.getParameterMap());
+        logger.info("支付宝投诉通知 request ===> " + request.getParameterMap());
         if("alipay.merchant.tradecomplain.changed".equals(msgMethod)){
             return alipayServer.aliPayTradecomplainChanged(request);
         }

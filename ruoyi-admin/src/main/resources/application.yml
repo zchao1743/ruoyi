@@ -144,19 +144,23 @@ swagger:
   enabled: true
 
 ## 北京玉湖
-alipay:
-  appid: 123445345
-  authorizeUrl: http://pay.yjw.ink/outside/order/alipay/publicAppAuthorize
-  appUrl: http://pay.yjw.ink
-  orderPay: http://pay.yjw.ink/outside/order/
-  callback: http://pay.yjw.ink/outside/order/alipay/callback
-  returnUrl: http://pay.yjw.ink/outside/order/alipay/return
+#alipay:
+#  appid: 123445345
+#  authorizeUrl: http://pay.yjw.ink/outside/order/alipay/publicAppAuthorize
+#  getUidUrl: http://pay.yjw.ink/outside/order/alipay/publicAppAuthorize
+#  appUrl: http://pay.yjw.ink
+#  orderPay: http://pay.yjw.ink/outside/order/
+#  callback: http://pay.yjw.ink/outside/order/alipay/callback
+#  returnUrl: http://pay.yjw.ink/outside/order/alipay/return
 
 
 
 # 北京踏奇
-#alipay:
-#  appUrl: http://pay.taqikeji.cn
-#  orderPay: http://pay.taqikeji.cn/outside/order/
-#  callback: http://pay.taqikeji.cn/outside/order/alipay/callback
-#  returnUrl: http://pay.taqikeji.cn/outside/order/alipay/return
+alipay:
+  appid: 2021003127666952
+  authorizeUrl: http://pay.taqikeji.cn/outside/order/alipay/publicAppAuthorize
+  getUidUrl: http://pay.taqikeji.cn/outside/order/payOrderGetUid
+  appUrl: http://pay.taqikeji.cn
+  orderPay: http://pay.taqikeji.cn/outside/order/
+  callback: http://pay.taqikeji.cn/outside/order/alipay/callback
+  returnUrl: http://pay.taqikeji.cn/outside/order/alipay/return
