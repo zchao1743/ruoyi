@@ -10,11 +10,8 @@ import com.alipay.api.*;
 import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.alipay.api.request.AlipayFundTransUniTransferRequest;
-import com.alipay.api.request.AlipayTradeQueryRequest;
-import com.alipay.api.request.AlipayTradeWapPayRequest;
-import com.alipay.api.response.AlipayFundTransUniTransferResponse;
-import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.api.request.*;
+import com.alipay.api.response.*;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -222,7 +219,7 @@ public class AlipayServerImpl implements AlipayServer {
         return retMap;
     }
 
-    public String aliPayCallback(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException {
+    public String aliPayCallback(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
         Map<String,String> params = new HashMap<String,String>();
         Map requestParams = request.getParameterMap();
         for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
@@ -421,7 +418,7 @@ public class AlipayServerImpl implements AlipayServer {
      * @throws UnsupportedEncodingException
      * @throws AlipayApiException
      */
-    public String aliPayTradecomplainChanged(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException {
+    public String aliPayTradecomplainChanged(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
         Map<String,String> params = new HashMap<String,String>();
         Map requestParams = request.getParameterMap();
         for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
@@ -457,7 +454,7 @@ public class AlipayServerImpl implements AlipayServer {
             orgTradeComplain.setGmtCreate(new Date());
             tradeComplainService.insertOrgTradeComplain(orgTradeComplain);
             //——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
-
+            logger.debug("交易投诉通知回调-支付宝侧投诉单号:"+complainEventId);
             //——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
             return "success";
 
@@ -467,7 +464,188 @@ public class AlipayServerImpl implements AlipayServer {
         }
     }
 
-    public int synctradecomplain(){
-        return  1;
+    @Override
+    public String synctradecomplain(OrgTradeComplain orgTradeComplain) throws Exception {
+        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        AlipayClient alipayClient = null;
+        if(alipayConfig.getKeyOrCert() == 1){
+            logger.info("证书客户端！");
+            alipayClient =  certClient(alipayConfig);
+        }else{
+            logger.info("秘钥客户端！");
+            alipayClient =  alipayClient(alipayConfig);
+        }
+            AlipayMerchantTradecomplainQueryRequest request = new AlipayMerchantTradecomplainQueryRequest();
+            request.setBizContent("{" +
+                    "  \"complain_event_id\":\""+orgTradeComplain.getComplainEventId()+"\"" +
+                    "}");
+            AlipayMerchantTradecomplainQueryResponse response = alipayClient.certificateExecute(request);
+            if(response.isSuccess()){
+
+                //更新查询单条交易投诉详情
+                orgTradeComplain.setStatus("MERCHANT_PROCESSING");//待处理
+                orgTradeComplain.setGmtCreate(new Date());
+                orgTradeComplain.setComplainReason(response.getComplainReason());
+                orgTradeComplain.setTargetId(response.getTargetId());    //应用id
+                orgTradeComplain.setTradeNo(response.getTradeNo());      //支付宝交易号
+                orgTradeComplain.setStatus(response.getStatus());
+                orgTradeComplain.setMerchantOrderNo(response.getMerchantOrderNo());   //商家订单号
+                orgTradeComplain.setGmtModified(DateUtils.parseDate(response.getGmtModified()));
+                orgTradeComplain.setGmtFinished(DateUtils.parseDate(response.getGmtFinished()));
+                orgTradeComplain.setLeafCategoryName(response.getLeafCategoryName());
+                tradeComplainService.updateOrgTradeComplain(orgTradeComplain);
+
+                if(!"MERCHANT_PROCESSING".equals(response.getStatus())){  //如果查询结果 投诉状态不为待处理  侧返回成功!
+                    return "success";
+                }
+                //根据支付宝订单 号 查询订单信息
+                OrgOrderInfo orderInfo = new OrgOrderInfo();
+                orderInfo.setMerchanOrderNo(response.getTradeNo());
+                orderInfo = orderInfoService.queryOrder(orderInfo);
+                String refundStatus = alipayTradeRefund(orderInfo);
+                if(!"success".equals(refundStatus)){
+                    //退款失败
+                    return "fail";
+                }
+                //退款成功
+                String feedbackSubmit = alipayMerchantTradecomplainFeedbackSubmit(orgTradeComplain,alipayClient);
+                if(!"success".equals(feedbackSubmit)){
+                    //商家处理交易投诉
+                    return "fail";
+                }
+                orgTradeComplain.setStatus("MERCHANT_FEEDBACKED");  //修改投诉处理状态为已处理
+                tradeComplainService.updateOrgTradeComplain(orgTradeComplain);
+                return "success";
+            } else {
+                //投诉处理失败
+                return "fail";
+            }
     }
+
+    @Override
+    public String alipayMerchantTradecomplainFeedbackSubmit(OrgTradeComplain orgTradeComplain,AlipayClient alipayClient) throws AlipayApiException {
+        AlipayMerchantTradecomplainFeedbackSubmitRequest tradecomplainRequest = new AlipayMerchantTradecomplainFeedbackSubmitRequest();
+        tradecomplainRequest.setComplainEventId(orgTradeComplain.getComplainEventId());
+        tradecomplainRequest.setFeedbackCode("02");
+        tradecomplainRequest.setFeedbackContent("钱已退款给您，请查收");
+        tradecomplainRequest.setOperator("王芳");
+        AlipayMerchantTradecomplainFeedbackSubmitResponse  tradecomplainResponse = alipayClient.certificateExecute(tradecomplainRequest);
+        logger.debug("商家处理交易投诉:"+tradecomplainResponse.getBody());
+        if(tradecomplainResponse.isSuccess()){
+            return "success";
+        } else {
+            return "fail";
+        }
+    }
+
+    @Override
+    public String alipayTradeRefund(OrgOrderInfo orderInfo) throws AlipayApiException {
+        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        AlipayClient alipayClient = null;
+        if(alipayConfig.getKeyOrCert() == 1){
+            logger.info("证书客户端！");
+            alipayClient =  certClient(alipayConfig);
+        }else{
+            logger.info("秘钥客户端！");
+            alipayClient =  alipayClient(alipayConfig);
+        }
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("trade_no", orderInfo.getMerchanOrderNo());
+        bizContent.put("refund_amount", orderInfo.getYjamount());
+        bizContent.put("out_request_no", "HZ01RF001");
+        request.setBizContent(bizContent.toString());
+        AlipayTradeRefundResponse response = alipayClient.certificateExecute(request);
+        logger.debug("统一收单交易退款接口:"+response.getBody());
+        if(response.isSuccess()){
+            //更新订单状态
+            orderInfo.setOrderStatus(2L);
+            orderInfoService.updateOrgOrderInfo(orderInfo);
+            //退款成功
+            return "success";
+        } else {
+            //退款失败
+            return "fail";
+        }
+    }
+
+    @Override
+    public String loginCallBack(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException { //获取用户扫码授权的参数//
+        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        AlipayClient alipayClient = null;
+        if(alipayConfig.getKeyOrCert() == 1){
+            logger.info("证书客户端！");
+            alipayClient =  certClient(alipayConfig);
+        }else{
+            logger.info("秘钥客户端！");
+            alipayClient =  alipayClient(alipayConfig);
+        }
+        String code = new String(request.getParameter("auth_code").getBytes("ISO-8859-1"),"UTF-8");
+//        Map map = this.getAliPayParam(request); //获取用户扫码后的code
+//        String code = map.getStrin("auth_code"); //构建阿里客户端
+
+        AlipaySystemOauthTokenRequest alipaySystemOauthTokenRequest = new AlipaySystemOauthTokenRequest();
+        alipaySystemOauthTokenRequest.setGrantType("authorization_code");
+        alipaySystemOauthTokenRequest.setCode(code);
+        AlipaySystemOauthTokenResponse oauthTokenResponse = alipayClient.certificateExecute(alipaySystemOauthTokenRequest);
+        logger.info("获得用户+++++++++++++++uuid:{}+++++++++++++++",oauthTokenResponse.getUserId());
+        // 获取阿里用户token
+        String uid =oauthTokenResponse.getUserId();//获取用户信息
+        //AlipayUserInfoShareResponse infoShareResponse = this.getUserInfo(alipayClient, aliUserToken, 0); //！！！沙箱环境用户没有这些基本信息但是可以看到支付宝接口是成功的
+        return uid;
+    }
+
+    public Map getAliPayParam(HttpServletRequest request) throws UnsupportedEncodingException {
+        Map map = new HashMap();
+        Map requestParams = request.getParameterMap();
+        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
+            String name = (String) iter.next();
+            String[] values = (String[]) requestParams.get(name);
+            String valueStr = "";
+            for (int i = 0; i <values.length; i++) { valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ","; }
+            // 乱码解决，这段代码在出现乱码时使用 //
+            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+            map.put(name, valueStr);
+            logger.info("接受支付宝回调参数：{}",map);
+        }
+        return map;
+    }
+//
+//    private String getAliUserToken(String code, AlipayClient alipayClient) throws AlipayApiException {
+//        AlipaySystemOauthTokenRequest alipaySystemOauthTokenRequest = new AlipaySystemOauthTokenRequest();
+//        alipaySystemOauthTokenRequest.setGrantType("authorization_code");
+//        alipaySystemOauthTokenRequest.setCode(code);
+//        AlipaySystemOauthTokenResponse oauthTokenResponse = alipayClient.execute(alipaySystemOauthTokenRequest);
+//        logger.info("获得用户+++++++++++++++token:{}+++++++++++++++",oauthTokenResponse.getAccessToken());
+//        logger.info("获得用户+++++++++++++++uuid:{}+++++++++++++++",oauthTokenResponse.getUserId());
+//        if(oauthTokenResponse.isSuccess()){
+//            logger.info("成功");
+//        } else {
+//            logger.info("***********失败，自旋开始第：{}次");
+//           // number += 1;
+////            if(number <3){
+////                logger.info("获取token失败，尝试：*******{}*******",number);
+////                return this.getAliUserToken(apiPayLoginReq, alipayClient, number);
+////            }
+//        } return oauthTokenResponse.getUserId();
+//    }
+
+//    private AlipayUserInfoShareResponse getUserInfo(AlipayClient alipayClient,AlipaySystemOauthTokenResponse aliUserToken,int number) throws AlipayApiException {
+//        AlipayUserInfoShareRequest alipayUserInfoShareRequest = new AlipayUserInfoShareRequest();
+//        AlipayUserInfoShareResponse infoShareResponse = alipayClient.execute(alipayUserInfoShareRequest,aliUserToken.getAccessToken());
+//        logger.info("----------------获得支付宝用户详情：{}",infoShareResponse.getBody());
+//        UserInfoReq userInfoReq = new UserInfoReq();
+//        if(infoShareResponse.isSuccess()){ //用户授权成功
+//            logger.info("----------------获得支付宝用户基本而信息：{}",userInfoReq);
+//            logger.info("成功");
+//        } else {
+//            logger.info("***********失败，自旋开始第：{}次",number);
+//            number += 1;
+//            if(number <3){
+//                logger.info("调用用户详情失败，尝试：*******{}*******",number);
+//                return this.getUserInfo(alipayClient,aliUserToken,number);
+//            }
+//            return infoShareResponse ;
+//        }
+//    }
 }

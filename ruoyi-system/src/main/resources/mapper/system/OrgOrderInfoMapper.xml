@@ -37,7 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrgOrderInfoVo">
-        select id, uid,accountId,accountAppId, accountName, channelId, channelName, merchantId,merchantNo, merchantName, orderNo, accountOrderNo,clientIp,
+     select id, uid,accountId,accountAppId, accountName, channelId, channelName, merchantId,merchantNo, merchantName, orderNo, accountOrderNo,clientIp,
                merchanOrderNo, yjamount,amount, method, payUrl, callbackUrl, callbackStatus, callbackTime, returnUrl, bodys, response, orderKey, orderStatus, completionTime, returnTime, createTime from org_order_info
     </sql>
 
@@ -111,8 +111,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertOrgOrderInfo" parameterType="com.ruoyi.system.domain.OrgOrderInfo" useGeneratedKeys="true" keyProperty="id">
         insert into org_order_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="accountId != null">accountId,</if>
             <if test="uid != null">uid,</if>
+            <if test="accountId != null">accountId,</if>
             <if test="accountAppId != null">accountAppId,</if>
             <if test="accountName != null">accountName,</if>
             <if test="channelId != null">channelId,</if>

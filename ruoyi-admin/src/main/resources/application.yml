@@ -145,10 +145,14 @@ swagger:
 
 ## 北京玉湖
 alipay:
+  appid: 123445345
+  authorizeUrl: http://pay.yjw.ink/outside/order/alipay/publicAppAuthorize
   appUrl: http://pay.yjw.ink
   orderPay: http://pay.yjw.ink/outside/order/
   callback: http://pay.yjw.ink/outside/order/alipay/callback
   returnUrl: http://pay.yjw.ink/outside/order/alipay/return
+
+
 
 # 北京踏奇
 #alipay:

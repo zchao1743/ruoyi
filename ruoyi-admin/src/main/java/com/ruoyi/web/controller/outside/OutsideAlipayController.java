@@ -58,6 +58,10 @@ public class OutsideAlipayController extends BaseController {
     private AlipayServer alipayServer;
     @Autowired
     private IOrgOrderInfoService orderService;
+
+    @Autowired
+    private IAlipayUserInfoService alipayUserInfoService;
+
     @Autowired
     private IOrgAccountService accountService;
     @Autowired
@@ -72,6 +76,11 @@ public class OutsideAlipayController extends BaseController {
     @Value(value = "${ruoyi.profile}")
     private String uploadUrl;
 
+    @Value(value = "${alipay.authorizeUrl}")
+    private String authorizeUrl;
+
+    @Value(value = "${alipay.appid}")
+    private String appid;
     private static final Logger logger = LoggerFactory.getLogger(OutsideAlipayController.class);
 
 
@@ -259,6 +268,20 @@ public class OutsideAlipayController extends BaseController {
         return prefix + "/payOrder";
     }
 
+
+    @GetMapping("/alipay/publicAppAuthorize/{orderNo}/{toSign}")
+    public void publicAppAuthorize(@PathVariable("orderNo") String orderNo,@PathVariable("toSign") String toSign,HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String url = "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id="+appid+"&scope=auth_base&redirect_uri="+authorizeUrl;
+        response.sendRedirect(url+"&state="+orderNo+"_"+toSign);
+    }
+
+    @GetMapping("/alipay/publicAppAuthorize")
+    public String loginCallBack(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
+
+        return alipayServer.loginCallBack(request);
+    }
+
+
     //支付宝异步支付回调
     @PostMapping("/alipay/callback")
     @ResponseBody
@@ -393,5 +416,67 @@ public class OutsideAlipayController extends BaseController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         System.out.println(id);
         System.out.println(sdf.format(new Date())+id.substring(id.length()-10,id.length()));
+    }
+
+    //支付宝投诉通知
+    @PostMapping("/alipay/trade/complain/changed")
+    @ResponseBody
+    public String aliPayTradecomplainChanged(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException {
+        //支付宝支付回调
+        String msgMethod = new String(request.getParameter("msg_method").getBytes("ISO-8859-1"),"UTF-8");
+        logger.info("支付宝支付回调 request ===> " + request.getParameterMap());
+        if("alipay.merchant.tradecomplain.changed".equals(msgMethod)){
+            return alipayServer.aliPayTradecomplainChanged(request);
+        }
+        return "success";
+    }
+
+
+
+    @GetMapping("/payOrderGetUid")
+    @ResponseBody
+    public String payOrderGetUid(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
+
+        String uid = alipayServer.loginCallBack(request);
+        String ipadd = getIpAddr(request);
+        String state = new String(request.getParameter("state").getBytes("ISO-8859-1"),"UTF-8");
+        logger.info("取用户uid ---state:"+state);
+        if(StringUtils.isEmpty(state)){
+            return "调用失败";
+        }
+        String[] strings =  state.split("_");
+        logger.info("   orderNo:"+strings[0]);
+        logger.info("      sign:"+strings[1]);
+        int countUid = alipayUserInfoService.selectAlipayUserInfoByUidOrIpadd(uid,null);
+        //用户支付1次不可再次支付
+        if(countUid>1){
+            return "请更换支付通道！";
+        }
+        OrgOrderInfo orderInfo = orderService.selectorderByOrderId(strings[0]);
+        if(BeanUtil.isEmpty(orderInfo)){
+            return "调用失败";
+        }
+        //异步调用，更新 ip地址
+        updateOrderInfoClientIp(orderInfo,ipadd);
+//        int count = orderService.seleteByIp(ipadd);
+//        if(count>2){
+//            logger.error("ip地址："+ipadd+"大于2");
+//            return "支付次数超限，请更换支付通道！";
+//        }
+
+
+        if(BeanUtil.isNotEmpty(orderInfo)) {
+            String  aftSign = Md5Utils.hash(orderInfo.getOrderNo()+orderInfo.getMerchantNo()).toUpperCase();
+            logger.info("   aftSign:"+aftSign);
+            if(strings[1].equals(aftSign)){
+                logger.info("-----------------------");
+                return orderInfo.getBodys();
+            }else{
+                logger.error("解密失败：");
+                return "调用失败";
+            }
+        }else{
+            return "调用失败";
+        }
     }
 }

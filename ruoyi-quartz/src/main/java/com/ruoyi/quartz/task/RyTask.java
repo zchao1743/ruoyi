@@ -1,7 +1,10 @@
 package com.ruoyi.quartz.task;
 
 import com.ruoyi.system.domain.OrgOrderInfo;
+import com.ruoyi.system.domain.OrgTradeComplain;
+import com.ruoyi.system.service.AlipayServer;
 import com.ruoyi.system.service.IOrgOrderInfoService;
+import com.ruoyi.system.service.IOrgTradeComplainService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,12 @@ public class RyTask
 
     @Autowired
     IOrgOrderInfoService orderInfoService;
+
+    @Autowired
+    AlipayServer alipayServer;
+
+    @Autowired
+    private IOrgTradeComplainService tradeComplainService;
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public void ryMultipleParams(String s, Boolean b, Long l, Double d, Integer i)
@@ -42,6 +51,20 @@ public class RyTask
         if(orgOrderInfoList != null&& orgOrderInfoList.size()>0){
             for (OrgOrderInfo order:orgOrderInfoList) {
                 orderInfoService.callbackOrder(order);
+            }
+        }
+        logger.info("订单回调定时任务结束");
+    }
+
+
+    public void synctradecomplain() throws Exception {
+        logger.info("订单回调定时任务开始");
+        OrgTradeComplain orgTradeComplain = new OrgTradeComplain();
+        orgTradeComplain.setStatus("MERCHANT_PROCESSING");
+        List<OrgTradeComplain> orgTradeComplainList = tradeComplainService.selectOrgTradeComplainList(orgTradeComplain);
+        if(orgTradeComplainList != null&& orgTradeComplainList.size()>0){
+            for (OrgTradeComplain tradeComplain:orgTradeComplainList) {
+                alipayServer.synctradecomplain(tradeComplain);
             }
         }
         logger.info("订单回调定时任务结束");

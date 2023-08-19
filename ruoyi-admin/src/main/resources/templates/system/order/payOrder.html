@@ -71,7 +71,11 @@
     window.onload = function () {
         var orderNo = $('#orderNo').val();
         var toSign = $('#toSign').val();
-        window.location=getRootPath()+"/outside/order/payOrderInfo/"+orderNo+"/"+toSign;
+        var state =orderNo+"_"+toSign;
+        var appid ="2021003127666952";
+        var rec_url = getRootPath()+"/outside/order/payOrderGetUid";
+        //window.location=getRootPath()+"/outside/order/payOrderInfo/"+orderNo+"/"+toSign;
+        window.location="https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id="+appid+"&scope=auth_base&redirect_uri="+rec_url+"&state="+state;
     }
     // 获取地址栏的绝对路径
     function getRootPath() {
