@@ -102,12 +102,12 @@ public class OutsideAlipayController extends BaseController {
             return new AjaxResult(AjaxResult.Type.ERROR,"验签失败！","");
         }
 
-        if(StringUtils.isNotEmpty(orderVo.getUid())){
-            int count = orderService.seleteByUid(orderVo.getAppid(),orderVo.getUid());
-            if( count > 2 ){
-                return new AjaxResult(AjaxResult.Type.ERROR,"拉取订单失败，请更换支付通道！","");
-            }
-        }
+//        if(StringUtils.isNotEmpty(orderVo.getUid())){
+//            int count = orderService.seleteByUid(orderVo.getAppid(),orderVo.getUid());
+//            if( count > 2 ){
+//                return new AjaxResult(AjaxResult.Type.ERROR,"拉取订单失败，请更换支付通道！","");
+//            }
+//        }
 
         OrgOrderInfo orderInfo = new OrgOrderInfo();
         orderInfo.setAccountName(account.getAccountName());
