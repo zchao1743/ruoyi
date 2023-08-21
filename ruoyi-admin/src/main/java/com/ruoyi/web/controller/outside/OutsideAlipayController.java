@@ -429,7 +429,7 @@ public class OutsideAlipayController extends BaseController {
     }
 
     //支付宝投诉通知
-    @PostMapping("/alipay/trade/complain/changed")
+    @GetMapping("/alipay/trade/complain/changed")
     @ResponseBody
     public String aliPayTradecomplainChanged(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException {
         //支付宝支付回调

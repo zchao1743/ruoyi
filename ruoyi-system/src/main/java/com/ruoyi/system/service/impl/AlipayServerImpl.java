@@ -658,24 +658,25 @@ public class AlipayServerImpl implements AlipayServer {
             alipayClient =  alipayClient(alipayConfig);
         }
 
-        //String begin_time = DateUtils.dateTimeNow("yyyy-MM-dd")+" 00:00:00";
-        String begin_time = "2023-08-12 00:00:00";
+        String begin_time = DateUtils.dateTimeNow("yyyy-MM-dd")+" 00:00:00";
+
         String end_time = DateUtils.dateTimeNow("yyyy-MM-dd")+" 23:59:59";
         AlipayMerchantTradecomplainBatchqueryRequest request = new AlipayMerchantTradecomplainBatchqueryRequest();
         request.setBizContent("{" +
-                "  \"target_infos\":[" +
-                "    {" +
-                "      \"target_id\":\""+alipayConfig.getAPPID()+"\"," +
-                "      \"target_type\":\"APPID\"" +
-                "    }" +
-                "  ]," +
-                //"  \"status\":\"MERCHANT_PROCESSING\"," +
+//                "  \"target_infos\":[" +
+//                "    {" +
+//                "      \"target_id\":\""+alipayConfig.getAPPID()+"\"," +
+//                "      \"target_type\":\"APPID\"" +
+//                "    }" +
+//                "  ]," +
+                "  \"status\":\"MERCHANT_FEEDBACKED\"," +
                 //"  \"begin_time\":\""+begin_time+"\"," +
                 //"  \"end_time\":\""+end_time+"\"," +
                 "  \"page_size\":20," +
                 "  \"page_num\":1" +
                 "}");
         AlipayMerchantTradecomplainBatchqueryResponse response = alipayClient.certificateExecute(request);
+        logger.info("AlipayMerchantTradecomplainBatchqueryResponse--isSuccess:"+response.isSuccess());
         logger.info("AlipayMerchantTradecomplainBatchqueryResponse--getBody:"+response.getBody());
         if(response.isSuccess()){
             List<TradeComplainQueryResponse>  responseLisrt = response.getTradeComplainInfos();
