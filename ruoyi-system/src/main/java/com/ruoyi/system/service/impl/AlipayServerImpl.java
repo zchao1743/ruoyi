@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -570,7 +571,7 @@ public class AlipayServerImpl implements AlipayServer {
     }
 
     @Override
-    public String loginCallBack(HttpServletRequest request) throws UnsupportedEncodingException, AlipayApiException { //获取用户扫码授权的参数//
+    public String loginCallBack(String code) throws AlipayApiException { //获取用户扫码授权的参数//
         SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
         AlipayClient alipayClient = null;
         if(alipayConfig.getKeyOrCert() == 1){
@@ -580,18 +581,13 @@ public class AlipayServerImpl implements AlipayServer {
             logger.info("秘钥客户端！");
             alipayClient =  alipayClient(alipayConfig);
         }
-        String code = new String(request.getParameter("auth_code").getBytes("ISO-8859-1"),"UTF-8");
-//        Map map = this.getAliPayParam(request); //获取用户扫码后的code
-//        String code = map.getStrin("auth_code"); //构建阿里客户端
 
         AlipaySystemOauthTokenRequest alipaySystemOauthTokenRequest = new AlipaySystemOauthTokenRequest();
         alipaySystemOauthTokenRequest.setGrantType("authorization_code");
         alipaySystemOauthTokenRequest.setCode(code);
         AlipaySystemOauthTokenResponse oauthTokenResponse = alipayClient.certificateExecute(alipaySystemOauthTokenRequest);
-        logger.info("获得用户+++++++++++++++uuid:{}+++++++++++++++",oauthTokenResponse.getUserId());
-        // 获取阿里用户token
         String uid =oauthTokenResponse.getUserId();//获取用户信息
-        //AlipayUserInfoShareResponse infoShareResponse = this.getUserInfo(alipayClient, aliUserToken, 0); //！！！沙箱环境用户没有这些基本信息但是可以看到支付宝接口是成功的
+        logger.info("获得用户+++++++++++++++uuid:{}+++++++++++++++",uid);
         return uid;
     }
 
