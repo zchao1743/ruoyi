@@ -436,8 +436,14 @@ public class AlipayServerImpl implements AlipayServer {
         }
 
         String appid = new String(request.getParameter("app_id").getBytes("ISO-8859-1"),"UTF-8");
+        logger.info("appid:"+appid);
+        String biz_content = new String(request.getParameter("biz_content").getBytes("ISO-8859-1"),"UTF-8");
+        logger.info("biz_content:"+biz_content);
+        JSONObject jsonObject = JSONObject.parseObject(biz_content);
+        String complainEventId = jsonObject.getString("complain_event_id");
+        logger.info("complainEventId:"+complainEventId);
         //支付宝侧投诉单号
-        String complainEventId = new String(request.getParameter("complain_event_id").getBytes("ISO-8859-1"),"UTF-8");
+        //String complainEventId = new String(request.getParameter("complain_event_id").getBytes("ISO-8859-1"),"UTF-8");
 
         SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfig(appid);
         boolean verify_result= false;
