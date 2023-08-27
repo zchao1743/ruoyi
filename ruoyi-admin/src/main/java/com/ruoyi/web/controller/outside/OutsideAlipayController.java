@@ -76,6 +76,9 @@ public class OutsideAlipayController extends BaseController {
     @Value(value = "${alipay.authorizeUrl}")
     private String authorizeUrl;
 
+    @Value(value = "${alipay.orderPay}")
+    private String actionUrl;
+
     @Value(value = "${alipay.getUidUrl}")
     private String getUidUrl;
 
@@ -265,6 +268,7 @@ public class OutsideAlipayController extends BaseController {
         mmap.put("amount", ooi.getAmount());
         mmap.put("yjAmount", ooi.getMyAmount());
         mmap.put("toSign", toSign);
+        mmap.put("actionUrl", actionUrl);
         return prefix + "/payOrder";
     }
 

@@ -157,7 +157,7 @@ swagger:
 
 # 北京踏奇
 alipay:
-  appid: 2021003127666952  #2021004101688196
+  appid: 2021004111636536  #2021004101688196
   authorizeUrl: http://pay.taqikeji.cn/outside/order/alipay/publicAppAuthorize
   getUidUrl: http://pay.taqikeji.cn/outside/order/payOrderGetUid
   appUrl: http://pay.taqikeji.cn

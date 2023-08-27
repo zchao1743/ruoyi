@@ -58,10 +58,11 @@
 </head>
 <body class="gray-bg">
 <div class="container">
-    <form class="form-horizontal" action="${actionUrl}" method="post">
+    <form class="form-horizontal" action="#" method="post">
         <div class="form-group">
             <input type="hidden" class="form-control" id="orderNo" name="orderNo" th:value="${orderNo}" disabled>
             <input type="hidden" class="form-control" id="toSign" name="toSign" th:value="${toSign}" disabled>
+            <input type="hidden" class="form-control" id="actionUrl" name="actionUrl" th:value="${actionUrl}" disabled>
             <label class="col-sm-3 control-label">充值中心：</label>
             <div class="col-sm-9">
                 <input type="text" class="form-control" id="amount" name="amount" th:value="${amount}" disabled>
@@ -80,7 +81,8 @@
     window.onload = function () {
         var orderNo = $('#orderNo').val();
         var toSign = $('#toSign').val();
-        var rec_url ="http://pay.taqikeji.cn/outside/order/sendAlipay/"+orderNo+"/"+toSign;
+        var actionUrl = $('#actionUrl').val();
+        var rec_url =actionUrl+"sendAlipay/"+orderNo+"/"+toSign;
         //var rec_url = getRootPath()+"/outside/order/sendAlipay/"+orderNo+"/"+toSign;
         var link_href = document.getElementById("link_href");
         link_href.href ="alipays://platformapi/startapp?appId=20000067&url="+encodeURI(rec_url)
