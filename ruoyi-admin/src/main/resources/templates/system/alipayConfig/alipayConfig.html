@@ -74,10 +74,10 @@
                 },
                 {
                     field: 'rsaPrivateKey',
+                    title: '应用私钥',
                     formatter: function(value, row, index) {
                         return $.table.tooltip(value);
-                    },
-                    title: '私钥 pkcs8格式的'
+                    }
                 },
                 {
                     field: 'notifyUrl',
@@ -94,17 +94,17 @@
 
                 {
                     field: 'alipayPrivateKey',
+                    title: '支付宝私钥',
                     formatter: function(value, row, index) {
                         return $.table.tooltip(value);
-                    },
-                    title: '私钥'
+                    }
                 },
                 {
                     field: 'alipayPublicKey',
+                    title: '支付宝公钥',
                     formatter: function(value, row, index) {
                         return $.table.tooltip(value);
-                    },
-                    title: '支付宝公钥'
+                    }
                 },
                 {
                     field: 'signtype',
@@ -113,6 +113,14 @@
                 {
                     field: 'keyOrCert',
                     title: '1证书0秘钥'
+                },
+                {
+                    field: 'weightStart',
+                    title: '权重开始'
+                },
+                {
+                    field: 'weightEnd',
+                    title: '权重结束'
                 },
                 {
                     field: 'alipayStatus',

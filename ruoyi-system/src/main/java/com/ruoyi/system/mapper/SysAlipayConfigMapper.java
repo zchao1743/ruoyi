@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.SysAlipayConfig;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * alipayConfigMapper接口
@@ -21,6 +22,8 @@ public interface SysAlipayConfigMapper
 
 
     public SysAlipayConfig  selectSysAlipayConfigStatusTopOne();
+
+    public SysAlipayConfig  selectSysAlipayConfigStatusWeight(@Param("weight")int weight);
 
 
     public SysAlipayConfig  selectSysAlipayConfig(String appId);

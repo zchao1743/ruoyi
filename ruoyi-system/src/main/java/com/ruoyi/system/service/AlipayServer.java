@@ -35,7 +35,7 @@ public interface AlipayServer {
 
     String alipayMerchantTradecomplainFeedbackSubmit(OrgTradeComplain orgTradeComplain,AlipayClient alipayClient) throws AlipayApiException;
 
-    String loginCallBack(String code) throws  AlipayApiException;
+    String loginCallBack(String code,String appid) throws  AlipayApiException;
 
 
     //查询投诉列表

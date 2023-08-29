@@ -40,6 +40,11 @@ public class SysAlipayConfigServiceImpl implements ISysAlipayConfigService
     }
 
     @Override
+    public SysAlipayConfig selectSysAlipayConfigStatusWeight(int weight)
+    {
+        return sysAlipayConfigMapper.selectSysAlipayConfigStatusWeight(weight);
+    }
+    @Override
     public SysAlipayConfig selectSysAlipayConfig(String appId)
     {
         return sysAlipayConfigMapper.selectSysAlipayConfig(appId);

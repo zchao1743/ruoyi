@@ -20,7 +20,7 @@ public interface IAlipayUserInfoService
     public AlipayUserInfo selectAlipayUserInfoById(Long id);
 
 
-    public int selectAlipayUserInfoByUidOrIpadd(String uid,String ipAdd);
+    public AlipayUserInfo selectAlipayUserInfoByUid(String uid);
     /**
      * 查询支付宝用户信息列表
      * 

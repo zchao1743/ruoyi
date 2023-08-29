@@ -21,7 +21,7 @@ public interface AlipayUserInfoMapper
     public AlipayUserInfo selectAlipayUserInfoById(Long id);
 
 
-    public int selectAlipayUserInfoByUidOrIpadd(@Param("uid")String uid, @Param("ipadd")String ipadd);
+    public AlipayUserInfo selectAlipayUserInfoByUid(@Param("uid")String uid);
     /**
      * 查询支付宝用户信息列表
      * 

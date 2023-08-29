@@ -85,7 +85,7 @@
         var rec_url =actionUrl+"sendAlipay/"+orderNo+"/"+toSign;
         //var rec_url = getRootPath()+"/outside/order/sendAlipay/"+orderNo+"/"+toSign;
         var link_href = document.getElementById("link_href");
-        link_href.href ="alipays://platformapi/startapp?appId=20000067&url="+encodeURI(rec_url)
+        link_href.href ="alipays://platformapi/startapp?appId=20000067&url="+encodeURIComponent(rec_url);
     }
     // 获取地址栏的绝对路径
     function getRootPath() {

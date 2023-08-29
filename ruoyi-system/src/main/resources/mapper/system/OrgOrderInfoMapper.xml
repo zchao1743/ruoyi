@@ -105,9 +105,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         limit 1
     </select>
     <select id="selectorderByOrderId" resultType="com.ruoyi.system.domain.OrgOrderInfo">
-        <include refid="selectOrgOrderInfoVo"/>
+        select id, accountId,accountAppId, orderNo, accountOrderNo,merchantNo,
+               merchanOrderNo, yjamount,amount, payUrl, callbackUrl, callbackStatus, returnUrl, bodys, orderStatus, completionTime, returnTime, createTime
+        from org_order_info
         where orderNo = #{orderNo}
     </select>
+
+    <select id="selectorderByOrderNoAnd5Hour" resultType="com.ruoyi.system.domain.OrgOrderInfo">
+        <include refid="selectOrgOrderInfoVo"/>
+        where orderNo = #{orderNo} where  createTime &gt;= DATE_SUB(NOW(), INTERVAL 5 HOUR);
+    </select>
+
+
     <insert id="insertOrgOrderInfo" parameterType="com.ruoyi.system.domain.OrgOrderInfo" useGeneratedKeys="true" keyProperty="id">
         insert into org_order_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

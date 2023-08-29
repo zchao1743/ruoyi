@@ -93,7 +93,7 @@ public class AlipayUserInfoServiceImpl implements IAlipayUserInfoService
     }
 
     @Override
-    public int selectAlipayUserInfoByUidOrIpadd(String uid, String ipAdd) {
-        return alipayUserInfoMapper.selectAlipayUserInfoByUidOrIpadd(uid,ipAdd);
+    public AlipayUserInfo selectAlipayUserInfoByUid(String uid) {
+        return alipayUserInfoMapper.selectAlipayUserInfoByUid(uid);
     }
 }

@@ -69,6 +69,9 @@ public class SysAlipayConfig extends BaseEntity
     /** 使用证书或是秘钥 */
     private Integer keyOrCert;
 
+    private Integer weightStart;
+
+    private Integer weightEnd;
     /** 应用公钥证书路径 */
     private String appCertPath;
     /** 支付宝公钥证书文件路径 */
@@ -211,6 +214,8 @@ public class SysAlipayConfig extends BaseEntity
                 ", SIGNTYPE='" + SIGNTYPE + '\'' +
                 ", alipayStatus=" + alipayStatus +
                 ", keyOrCert=" + keyOrCert +
+                ", weightStart=" + weightStart +
+                ", weightEnd=" + weightEnd +
                 ", appCertPath='" + appCertPath + '\'' +
                 ", alipayCertPath='" + alipayCertPath + '\'' +
                 ", alipayRootCertPath='" + alipayRootCertPath + '\'' +
@@ -247,5 +252,21 @@ public class SysAlipayConfig extends BaseEntity
 
     public void setKeyOrCert(Integer keyOrCert) {
         this.keyOrCert = keyOrCert;
+    }
+
+    public Integer getWeightStart() {
+        return weightStart;
+    }
+
+    public void setWeightStart(Integer weightStart) {
+        this.weightStart = weightStart;
+    }
+
+    public Integer getWeightEnd() {
+        return weightEnd;
+    }
+
+    public void setWeightEnd(Integer weightEnd) {
+        this.weightEnd = weightEnd;
     }
 }

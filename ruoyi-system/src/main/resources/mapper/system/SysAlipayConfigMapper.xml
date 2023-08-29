@@ -22,12 +22,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="appCertPath"    column="appCertPath"    />
         <result property="alipayCertPath"    column="alipayCertPath"    />
         <result property="alipayRootCertPath"    column="alipayRootCertPath"    />
-
+        <result property="weightStart"    column="weightStart"    />
+        <result property="weightEnd"    column="weightEnd"    />
     </resultMap>
 
     <sql id="selectSysAlipayConfigVo">
         select id, APPID, RSA_PRIVATE_KEY, notify_url, return_url, URL, CHARSET, FORMAT, ALIPAY_PRIVATE_KEY, ALIPAY_PUBLIC_KEY, log_path, SIGNTYPE, alipay_status
-            ,keyOrCert,appCertPath,alipayCertPath,alipayRootCertPath
+            ,keyOrCert,appCertPath,alipayCertPath,alipayRootCertPath,weightStart,weightEnd
         from sys_alipay_config
     </sql>
 
@@ -60,6 +61,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         limit 1
     </select>
 
+    <select id="selectSysAlipayConfigStatusWeight"  parameterType="Integer" resultMap="SysAlipayConfigResult">
+        <include refid="selectSysAlipayConfigVo"/>
+        where alipay_status = 1 and weightStart &lt;= #{weight} and #{weight} &lt;= weightEnd
+        limit 1
+    </select>
 
     <select id="selectSysAlipayConfig"  parameterType="String" resultMap="SysAlipayConfigResult">
         <include refid="selectSysAlipayConfigVo"/>
@@ -86,6 +92,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="appCertPath != null  and appCertPath != ''">appCertPath,</if>
             <if test="alipayCertPath != null and alipayCertPath != ''">alipayCertPath,</if>
             <if test="alipayRootCertPath != null  and alipayRootCertPath != ''">alipayRootCertPath,</if>
+            <if test="weightStart != null  and weightStart != ''">weightStart,</if>
+            <if test="weightEnd != null  and weightEnd != ''">weightEnd,</if>
 
 
          </trim>
@@ -106,6 +114,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="appCertPath != null  and appCertPath != ''">#{appCertPath},</if>
             <if test="alipayCertPath != null and alipayCertPath != ''">#{alipayCertPath},</if>
             <if test="alipayRootCertPath != null  and alipayRootCertPath != ''">#{alipayRootCertPath},</if>
+            <if test="weightStart != null  and weightStart != ''">#{weightStart},</if>
+            <if test="weightEnd != null  and weightEnd != ''">#{weightEnd},</if>
          </trim>
     </insert>
 
@@ -128,6 +138,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="appCertPath != null  and appCertPath != ''">appCertPath = #{appCertPath},</if>
             <if test="alipayCertPath != null and alipayCertPath != ''">alipayCertPath = #{alipayCertPath},</if>
             <if test="alipayRootCertPath != null  and alipayRootCertPath != ''">alipayRootCertPath = #{alipayRootCertPath},</if>
+            <if test="weightStart != null  and weightStart != ''">weightStart = #{weightStart},</if>
+            <if test="weightEnd != null  and weightEnd != ''">weightEnd = #{weightEnd},</if>
         </trim>
         where id = #{id}
     </update>

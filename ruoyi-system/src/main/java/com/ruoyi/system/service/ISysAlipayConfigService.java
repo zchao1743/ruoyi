@@ -21,6 +21,8 @@ public interface ISysAlipayConfigService
 
     public SysAlipayConfig selectSysAlipayConfigStatusTopOne();
 
+    public SysAlipayConfig selectSysAlipayConfigStatusWeight(int weight);
+
     public SysAlipayConfig  selectSysAlipayConfig(String appId);
 
     /**

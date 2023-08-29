@@ -24,6 +24,11 @@ public class AlipayUserInfo extends BaseEntity
     @Excel(name = "uid")
     private String uid;
 
+    private Long iszt;
+
+    private Long initCount;
+
+    private Long payCount;
     /** ip地址 */
     @Excel(name = "ip地址")
     private String ipadd;
@@ -70,13 +75,40 @@ public class AlipayUserInfo extends BaseEntity
         return gmtCreate;
     }
 
+    public Long getIszt() {
+        return iszt;
+    }
+
+    public void setIszt(Long iszt) {
+        this.iszt = iszt;
+    }
+
+    public Long getInitCount() {
+        return initCount;
+    }
+
+    public void setInitCount(Long initCount) {
+        this.initCount = initCount;
+    }
+
+    public Long getPayCount() {
+        return payCount;
+    }
+
+    public void setPayCount(Long payCount) {
+        this.payCount = payCount;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("uid", getUid())
-            .append("ipadd", getIpadd())
-            .append("gmtCreate", getGmtCreate())
-            .toString();
+        return "AlipayUserInfo{" +
+                "id=" + id +
+                ", uid='" + uid + '\'' +
+                ", iszt=" + iszt +
+                ", initCount=" + initCount +
+                ", payCount=" + payCount +
+                ", ipadd='" + ipadd + '\'' +
+                ", gmtCreate=" + gmtCreate +
+                '}';
     }
 }

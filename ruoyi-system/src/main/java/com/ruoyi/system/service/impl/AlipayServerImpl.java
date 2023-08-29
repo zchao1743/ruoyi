@@ -17,13 +17,11 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.security.Md5Utils;
+import com.ruoyi.system.domain.AlipayUserInfo;
 import com.ruoyi.system.domain.OrgOrderInfo;
 import com.ruoyi.system.domain.OrgTradeComplain;
 import com.ruoyi.system.domain.SysAlipayConfig;
-import com.ruoyi.system.service.AlipayServer;
-import com.ruoyi.system.service.IOrgOrderInfoService;
-import com.ruoyi.system.service.IOrgTradeComplainService;
-import com.ruoyi.system.service.ISysAlipayConfigService;
+import com.ruoyi.system.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +62,9 @@ public class AlipayServerImpl implements AlipayServer {
     @Autowired
     private IOrgTradeComplainService tradeComplainService;
 
+    @Autowired
+    private IAlipayUserInfoService alipayUserInfoService;
+
     @Override
     public AjaxResult aliPayment(OrgOrderInfo orderInfo) {
         // 商户订单号，商户网站订单系统中唯一订单号，必填
@@ -82,7 +83,11 @@ public class AlipayServerImpl implements AlipayServer {
         /**********************/
         // SDK 公共请求类，包含公共请求参数，以及封装了签名与验签，开发者无需关注签名与验签
         //调用RSA签名方式
-        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        int weight = (int)(Math.random()*10000)%100;
+        SysAlipayConfig alipayConfig  = sysAlipayConfigService.selectSysAlipayConfigStatusWeight(weight);;
+        if(alipayConfig == null || BeanUtil.isEmpty(alipayConfig)){
+            alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        }
         String aliPayAppid = alipayConfig.getAPPID();
         AlipayClient alipayClient = null;
         if(alipayConfig.getKeyOrCert() == 1){
@@ -279,6 +284,10 @@ public class AlipayServerImpl implements AlipayServer {
                     logger.error("ali pay error : 订单更新失败==》" + out_trade_no);
                     return "fail";
                 }
+                //支付成功设置uid值
+                if(StringUtils.isNotEmpty(order.getUid())){
+                    inseterAlipayUserInfo(order.getUid(),order.getClientIp());
+                }
                 if(StringUtils.isNotEmpty(order.getCallbackUrl())){
                     if(order.getAcountAppId().equals("5cf4dc0dc8414bc6b4f0be225dbd64bc")){
                         asyncThreadCQCallbackOrder(order);
@@ -314,7 +323,11 @@ public class AlipayServerImpl implements AlipayServer {
         /**********************/
         // SDK 公共请求类，包含公共请求参数，以及封装了签名与验签，开发者无需关注签名与验签
         //调用RSA签名方式
-        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        int weight = (int)(Math.random()*10000)%100;
+        SysAlipayConfig alipayConfig  = sysAlipayConfigService.selectSysAlipayConfigStatusWeight(weight);;
+        if(alipayConfig == null || BeanUtil.isEmpty(alipayConfig)){
+            alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        }
         String aliPayAppid = alipayConfig.getAPPID();
 
         AlipayClient alipayClient = null;
@@ -376,6 +389,17 @@ public class AlipayServerImpl implements AlipayServer {
     @Async
     public void asyncThread(OrgOrderInfo orderInfo){
         orderInfoService.callbackOrder(orderInfo);
+    }
+
+
+    @Async
+    public void inseterAlipayUserInfo(String uid,String ipadd){
+        AlipayUserInfo alipayUserInfo = alipayUserInfoService.selectAlipayUserInfoByUid(uid);
+        if(alipayUserInfo != null){
+            alipayUserInfo.setPayCount(alipayUserInfo.getPayCount()+1);
+            int count  = alipayUserInfoService.updateAlipayUserInfo(alipayUserInfo);
+            logger.info("更新支付订单用户UID和IP地址："+count+" 条数据");
+        }
     }
 
     //异步调用传奇回调接口
@@ -473,7 +497,11 @@ public class AlipayServerImpl implements AlipayServer {
 
     @Override
     public String synctradecomplain(OrgTradeComplain orgTradeComplain) throws Exception {
-        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        int weight = (int)(Math.random()*10000)%100;
+        SysAlipayConfig alipayConfig  = sysAlipayConfigService.selectSysAlipayConfigStatusWeight(weight);;
+        if(alipayConfig == null || BeanUtil.isEmpty(alipayConfig)){
+            alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        }
         AlipayClient alipayClient = null;
         if(alipayConfig.getKeyOrCert() == 1){
             logger.info("证书客户端！");
@@ -547,7 +575,11 @@ public class AlipayServerImpl implements AlipayServer {
 
     @Override
     public String alipayTradeRefund(OrgOrderInfo orderInfo) throws AlipayApiException {
-        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        int weight = (int)(Math.random()*10000)%100;
+        SysAlipayConfig alipayConfig  = sysAlipayConfigService.selectSysAlipayConfigStatusWeight(weight);;
+        if(alipayConfig == null || BeanUtil.isEmpty(alipayConfig)){
+            alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        }
         AlipayClient alipayClient = null;
         if(alipayConfig.getKeyOrCert() == 1){
             logger.info("证书客户端！");
@@ -577,8 +609,9 @@ public class AlipayServerImpl implements AlipayServer {
     }
 
     @Override
-    public String loginCallBack(String code) throws AlipayApiException { //获取用户扫码授权的参数//
-        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+    public String loginCallBack(String code,String appid) throws AlipayApiException { //获取用户扫码授权的参数//
+        int weight = (int)(Math.random()*10000)%100;
+        SysAlipayConfig alipayConfig  = sysAlipayConfigService.selectSysAlipayConfig(appid);;
         AlipayClient alipayClient = null;
         if(alipayConfig.getKeyOrCert() == 1){
             logger.info("证书客户端！");
@@ -654,7 +687,11 @@ public class AlipayServerImpl implements AlipayServer {
 
     @Override
     public void alipayMerchantTradecomplainBatchquery() throws AlipayApiException {
-        SysAlipayConfig alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        int weight = (int)(Math.random()*10000)%100;
+        SysAlipayConfig alipayConfig  = sysAlipayConfigService.selectSysAlipayConfigStatusWeight(weight);;
+        if(alipayConfig == null || BeanUtil.isEmpty(alipayConfig)){
+            alipayConfig = sysAlipayConfigService.selectSysAlipayConfigStatusTopOne();
+        }
         AlipayClient alipayClient = null;
         if(alipayConfig.getKeyOrCert() == 1){
             logger.info("证书客户端！");

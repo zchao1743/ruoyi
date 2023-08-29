@@ -84,6 +84,9 @@ public class OutsideAlipayController extends BaseController {
 
     @Value(value = "${alipay.appid}")
     private String appid;
+
+    @Value(value = "${alipay.payCount}")
+    private int payCount;
     private static final Logger logger = LoggerFactory.getLogger(OutsideAlipayController.class);
 
 
@@ -114,12 +117,12 @@ public class OutsideAlipayController extends BaseController {
             return new AjaxResult(AjaxResult.Type.ERROR,"验签失败！","");
         }
 
-        if(StringUtils.isNotEmpty(orderVo.getUid())){
-            int count = orderService.seleteByUid(orderVo.getAppid(),orderVo.getUid());
-            if( count > 2 ){
-                return new AjaxResult(AjaxResult.Type.ERROR,"拉取订单失败，请更换支付通道！","");
-            }
-        }
+//        if(StringUtils.isNotEmpty(orderVo.getUid())){
+//            int count = orderService.seleteByUid(orderVo.getAppid(),orderVo.getUid());
+//            if( count > 2 ){
+//                return new AjaxResult(AjaxResult.Type.ERROR,"拉取订单失败，请更换支付通道！","");
+//            }
+//        }
 
         OrgOrderInfo orderInfo = new OrgOrderInfo();
         orderInfo.setAccountName(account.getAccountName());
@@ -247,7 +250,7 @@ public class OutsideAlipayController extends BaseController {
         account.setAccountStatus(1L);
         account = accountService.selectOne(account);
         if(account == null){
-            return "";
+            return null;
         }
         if(ObjUtil.isEmpty(ooi)|| ooi ==null){
             logger.info(orderNo+" not found!");
@@ -262,7 +265,8 @@ public class OutsideAlipayController extends BaseController {
         String sign = Md5Utils.hash(signstr).toUpperCase();
         logger.info("sign:"+sign);
         if(!sign.equals(toSign)){
-            return "";
+            logger.info("sign验证失败");
+            return null;
         }
         mmap.put("orderNo", orderNo);
         mmap.put("amount", ooi.getAmount());
@@ -282,7 +286,7 @@ public class OutsideAlipayController extends BaseController {
     @GetMapping("/alipay/publicAppAuthorize")
     public String loginCallBack(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
         String code = new String(request.getParameter("auth_code").getBytes("ISO-8859-1"),"UTF-8");
-        return alipayServer.loginCallBack(code);
+        return alipayServer.loginCallBack(code,null);
     }
 
 
@@ -374,22 +378,28 @@ public class OutsideAlipayController extends BaseController {
     }
 
     @Async
-    public void updateOrderInfoClientIp(OrgOrderInfo orderInfo,String ipadd){
-        orderInfo.setClientIp(ipadd);
+    public void updateOrderInfoClientIp(OrgOrderInfo orderInfo){
         int count  = orderService.updateOrgOrderInfo(orderInfo);
         logger.info("更新支付订单ip地址："+count+" 条数据");
     }
 
     @Async
-    public void inseterOrderInfoClientIp(String uid,String ipadd){
+    public void inseterAlipayUserInfo(String uid,String ipadd){
         AlipayUserInfo alipayUserInfo = new AlipayUserInfo();
         alipayUserInfo.setUid(uid);
         alipayUserInfo.setIpadd(ipadd);
+        alipayUserInfo.setPayCount(0L);
+        alipayUserInfo.setInitCount(1L);
         alipayUserInfo.setGmtCreate(new Date());
         int count  = alipayUserInfoService.insertAlipayUserInfo(alipayUserInfo);
         logger.info("更新支付订单用户UID和IP地址："+count+" 条数据");
     }
-
+    @Async
+    public void updateAlipayUserInfo(AlipayUserInfo alipayUserInfo){
+        alipayUserInfo.setInitCount(alipayUserInfo.getInitCount()+1);
+        int count  = alipayUserInfoService.updateAlipayUserInfo(alipayUserInfo);
+        logger.info("更新支付订单用户UID和IP地址："+count+" 条数据");
+    }
 
     public static String getIpAddr(HttpServletRequest request) {
 
@@ -423,14 +433,14 @@ public class OutsideAlipayController extends BaseController {
         return ipAddress;
     }
 
-    public static void main(String[] args) {
-        String id = IdWorkerUtil.getId()+"";
-        String str = "202308055090379867";
-        String sts = "202308109797005312";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        System.out.println(id);
-        System.out.println(sdf.format(new Date())+id.substring(id.length()-10,id.length()));
-    }
+//    public static void main(String[] args) {
+//        double d = Math.random()*10000;
+//        System.out.println(d);
+//        int a = (int) d%100;
+//        System.out.println(a);
+//        System.out.println((int)(Math.random()*10000)%100);
+//
+//    }
 
     //支付宝投诉通知
     @GetMapping("/alipay/trade/complain/changed")
@@ -445,41 +455,45 @@ public class OutsideAlipayController extends BaseController {
         return "success";
     }
 
-
-
     @GetMapping("/payOrderGetUid")
     @ResponseBody
     public String payOrderGetUid(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException {
 
         String code = new String(request.getParameter("auth_code").getBytes("ISO-8859-1"),"UTF-8");
-        String uid = alipayServer.loginCallBack(code);
+        String uid = alipayServer.loginCallBack(code,appid);
         logger.info("获得用户+++++++++++++++uuid:{}+++++++++++++++",uid);
-        //String ipadd = getIpAddr(request);
+        String ipadd = getIpAddr(request);
         String state = new String(request.getParameter("state").getBytes("ISO-8859-1"),"UTF-8");
-        logger.info("取用户uid ---state:"+state);
+        logger.info("参数 ---state:"+state);
         if(StringUtils.isEmpty(state)){
             return "调用失败";
         }
         String[] strings =  state.split("_");
         logger.info("   orderNo:"+strings[0]);
         logger.info("      sign:"+strings[1]);
-        int countUid = alipayUserInfoService.selectAlipayUserInfoByUidOrIpadd(uid,null);
-        //用户支付1次不可再次支付
-        if(countUid>=1){
-            return "请更换支付通道！";
+        AlipayUserInfo alipayUserInfo = alipayUserInfoService.selectAlipayUserInfoByUid(uid);
+        if(payCount>=1){
+            if(alipayUserInfo != null){
+                //用户支付1次不可再次支付 如果该用户被标记为砖头或是支付次数超过配阈值
+                if(alipayUserInfo.getIszt() == 1 || alipayUserInfo.getPayCount() > payCount){
+                    return "请更换支付通道！";
+                }
+            }
         }
         OrgOrderInfo orderInfo = orderService.selectorderByOrderId(strings[0]);
+        orderInfo.setUid(uid);
+        orderInfo.setClientIp(ipadd);
         if(BeanUtil.isEmpty(orderInfo)){
             return "调用失败";
         }
-        //异步调用，更新 ip地址
-        //updateOrderInfoClientIp(orderInfo,ipadd);
-        inseterOrderInfoClientIp(uid,"1");
-//        int count = orderService.seleteByIp(ipadd);
-//        if(count>2){
-//            logger.error("ip地址："+ipadd+"大于2");
-//            return "支付次数超限，请更换支付通道！";
-//        }
+        //异步调用，更新用户uid和ip地址
+        if(alipayUserInfo == null || BeanUtil.isEmpty(alipayUserInfo) || StringUtils.isEmpty(alipayUserInfo.getUid())){
+            inseterAlipayUserInfo(uid,ipadd);
+        }else{
+            updateAlipayUserInfo(alipayUserInfo);
+        }
+
+        updateOrderInfoClientIp(orderInfo);
 
         if(BeanUtil.isNotEmpty(orderInfo)) {
             String  aftSign = Md5Utils.hash(orderInfo.getOrderNo()+orderInfo.getMerchantNo()).toUpperCase();
@@ -496,13 +510,14 @@ public class OutsideAlipayController extends BaseController {
         }
     }
 
-
-
     @GetMapping("/sendAlipay/{orderNo}/{toSign}")
     public String sendAlipay(@PathVariable("orderNo") String orderNo,@PathVariable("toSign") String toSign, ModelMap mmap)
     {
         logger.info("endAlipay-orderNo："+orderNo);
         logger.info("endAlipay-toSign："+toSign);
+        mmap.put("orderNo", orderNo);
+        mmap.put("toSign", toSign);
+        logger.info("prefix:"+prefix);
         return prefix + "/sendAlipay";
     }
 

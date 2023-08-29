@@ -11,7 +11,7 @@ ruoyi:
   # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
   #profile: /home/java/uploadPath
   #appUrl: http://pay.yjw.ink
-  profile: D:/github/uploadPath
+  profile: D:/github/ruoyi/uploadPath
   # 获取ip地址开关
   addressEnabled: false
 
@@ -157,7 +157,8 @@ swagger:
 
 # 北京踏奇
 alipay:
-  appid: 2021004111636536  #2021004101688196
+  appid: 2021003127666952  #2021004101688196
+  payCount: 2  #支付宝用户最大调用次数
   authorizeUrl: http://pay.taqikeji.cn/outside/order/alipay/publicAppAuthorize
   getUidUrl: http://pay.taqikeji.cn/outside/order/payOrderGetUid
   appUrl: http://pay.taqikeji.cn

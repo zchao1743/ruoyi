@@ -54,6 +54,7 @@
     <script th:inline="javascript">
         var editFlag = [[${@permission.hasPermi('system:alipayUserInfo:edit')}]];
         var removeFlag = [[${@permission.hasPermi('system:alipayUserInfo:remove')}]];
+        var isztFlag = [[${@permission.hasPermi('system:alipayUserInfo:changeIszt')}]];
         var prefix = ctx + "system/alipayUserInfo";
 
         $(function() {
@@ -81,6 +82,15 @@
                     title: 'ip地址'
                 },
                 {
+                    visible: isztFlag == 'hidden' ? false : true,
+                    title: '是否砖头',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return statusTools(row);
+                    }
+                },
+
+                {
                     field: 'gmtCreate',
                     title: '创建时间'
                 },
@@ -97,6 +107,30 @@
             };
             $.table.init(options);
         });
+
+
+        /* 停用 */
+        function stop(id) {
+            $.modal.confirm("确认取消砖头吗？", function() {
+                $.operate.post(prefix + "/changeIszt", { "id": id,  "iszt": 0 });
+            })
+        }
+
+        /* 启用 */
+        function start(id) {
+            $.modal.confirm("确认该uid为砖头吗？", function() {
+                $.operate.post(prefix + "/changeIszt", { "id": id,  "iszt": 1 });
+            })
+        }
+
+        /* 状态显示 */
+        function statusTools(row) {
+            if (row.iszt == 0) {
+                return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="start(\'' + row.id + '\')"></i> ';
+            } else {
+                return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="stop(\'' + row.id + '\')"></i> ';
+            }
+        }
     </script>
 </body>
 </html>

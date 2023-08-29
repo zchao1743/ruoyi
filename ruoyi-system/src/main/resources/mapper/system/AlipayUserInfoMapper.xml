@@ -8,11 +8,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="id"    column="id"    />
         <result property="uid"    column="uid"    />
         <result property="ipadd"    column="ipadd"    />
+        <result property="iszt"    column="iszt"    />
+        <result property="payCount"    column="payCount"    />
+        <result property="initCount"    column="initCount"    />
         <result property="gmtCreate"    column="gmt_create"    />
     </resultMap>
 
     <sql id="selectAlipayUserInfoVo">
-        select id, uid, ipadd, gmt_create from alipay_user_info
+        select id, uid, ipadd,iszt, gmt_create from alipay_user_info
     </sql>
 
     <select id="selectAlipayUserInfoList" parameterType="AlipayUserInfo" resultMap="AlipayUserInfoResult">
@@ -20,6 +23,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="uid != null  and uid != ''"> and uid = #{uid}</if>
             <if test="ipadd != null  and ipadd != ''"> and ipadd = #{ipadd}</if>
+            <if test="iszt != null  and iszt != ''"> and iszt = #{iszt}</if>
+            <if test="payCount != null  and payCount != ''"> and payCount = #{payCount}</if>
+            <if test="initCount != null  and initCount != ''"> and initCount = #{initCount}</if>
             <if test="gmtCreate != null "> and gmt_create = #{gmtCreate}</if>
         </where>
     </select>
@@ -35,10 +41,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
 
-    <select id="selectAlipayUserInfoByUidOrIpadd" parameterType="String" resultType="Integer">
-        select count(1) from alipay_user_info where 1=1
-        <if test="uid != null  and uid != ''"> and uid = #{uid}</if>
-        <if test="ipadd != null  and ipadd != ''"> and ipadd = #{ipadd}</if>
+    <select id="selectAlipayUserInfoByUid" parameterType="String" resultMap="AlipayUserInfoResult">
+        <include refid="selectAlipayUserInfoVo"/>
+          where uid = #{uid}
 --         and date_format(createTime,'%Y-%m-%d') = date_format(CURDATE(),'%Y-%m-%d')
     </select>
 
@@ -48,11 +53,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null and uid != ''">uid,</if>
             <if test="ipadd != null">ipadd,</if>
+            <if test="payCount != null">payCount,</if>
+            <if test="initCount != null">initCount,</if>
             <if test="gmtCreate != null">gmt_create,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="uid != null and uid != ''">#{uid},</if>
             <if test="ipadd != null">#{ipadd},</if>
+            <if test="payCount != null">#{payCount},</if>
+            <if test="initCount != null">#{initCount},</if>
             <if test="gmtCreate != null">#{gmtCreate},</if>
          </trim>
     </insert>
@@ -62,6 +71,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="uid != null and uid != ''">uid = #{uid},</if>
             <if test="ipadd != null">ipadd = #{ipadd},</if>
+            <if test="iszt != null">iszt = #{iszt},</if>
+            <if test="payCount != null">payCount = #{payCount},</if>
+            <if test="initCount != null">initCount = #{initCount},</if>
             <if test="gmtCreate != null">gmt_create = #{gmtCreate},</if>
         </trim>
         where id = #{id}

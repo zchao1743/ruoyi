@@ -1,6 +1,8 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.List;
+
+import com.ruoyi.system.domain.OrgAccount;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -123,5 +125,14 @@ public class AlipayUserInfoController extends BaseController
     public AjaxResult remove(String ids)
     {
         return toAjax(alipayUserInfoService.deleteAlipayUserInfoByIds(ids));
+    }
+
+
+    @RequiresPermissions("system:alipayUserInfo:changeIszt")
+    @PostMapping("/changeIszt")
+    @ResponseBody
+    public AjaxResult changeIszt(AlipayUserInfo alipayUserInfo)
+    {
+        return toAjax(alipayUserInfoService.updateAlipayUserInfo(alipayUserInfo));
     }
 }
