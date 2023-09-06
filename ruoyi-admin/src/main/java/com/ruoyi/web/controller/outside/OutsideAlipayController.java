@@ -475,7 +475,7 @@ public class OutsideAlipayController extends BaseController {
         if(payCount>=1){
             if(alipayUserInfo != null){
                 //用户支付1次不可再次支付 如果该用户被标记为砖头或是支付次数超过配阈值
-                if(alipayUserInfo.getIszt() == 1 || alipayUserInfo.getPayCount() > payCount){
+                if(alipayUserInfo.getIszt() == 1 || alipayUserInfo.getPayCount() >= payCount){
                     return "请更换支付通道！";
                 }
             }

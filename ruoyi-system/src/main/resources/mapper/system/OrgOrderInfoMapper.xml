@@ -105,7 +105,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         limit 1
     </select>
     <select id="selectorderByOrderId" resultType="com.ruoyi.system.domain.OrgOrderInfo">
-        select id, accountId,accountAppId, orderNo, accountOrderNo,merchantNo,
+        select id, accountId,accountAppId, orderNo, accountOrderNo,merchantNo,uid,
                merchanOrderNo, yjamount,amount, payUrl, callbackUrl, callbackStatus, returnUrl, bodys, orderStatus, completionTime, returnTime, createTime
         from org_order_info
         where orderNo = #{orderNo}

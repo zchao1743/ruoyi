@@ -147,6 +147,10 @@
                     title: '订单金额1'
                 },
                 {
+                    field: 'uid',
+                    title: '支付UID'
+                },
+                {
                     field: 'method',
                     title: '支付方式',
                     formatter: function(value, row, index) {
@@ -159,7 +163,8 @@
                     title: '支付地址',
                     formatter: function(value, row, index) {
                         return $.table.tooltip(value);
-                    }
+                    },
+                    visible: false
                 },
                 {
                     field: 'callbackUrl',

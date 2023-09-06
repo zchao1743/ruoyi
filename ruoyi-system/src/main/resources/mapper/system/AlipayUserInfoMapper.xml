@@ -15,7 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectAlipayUserInfoVo">
-        select id, uid, ipadd,iszt, gmt_create from alipay_user_info
+        select id, uid, ipadd,iszt,payCount,initCount,gmt_create from alipay_user_info
     </sql>
 
     <select id="selectAlipayUserInfoList" parameterType="AlipayUserInfo" resultMap="AlipayUserInfoResult">
@@ -28,6 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="initCount != null  and initCount != ''"> and initCount = #{initCount}</if>
             <if test="gmtCreate != null "> and gmt_create = #{gmtCreate}</if>
         </where>
+        order by payCount desc,initCount desc
     </select>
     
     <select id="selectAlipayUserInfoById" parameterType="Long" resultMap="AlipayUserInfoResult">
@@ -44,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAlipayUserInfoByUid" parameterType="String" resultMap="AlipayUserInfoResult">
         <include refid="selectAlipayUserInfoVo"/>
           where uid = #{uid}
---         and date_format(createTime,'%Y-%m-%d') = date_format(CURDATE(),'%Y-%m-%d')
+         -- and date_format(createTime,'%Y-%m-%d') = date_format(CURDATE(),'%Y-%m-%d')
     </select>
 
 
